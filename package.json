@@ -9,11 +9,14 @@
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "build": "DUCKDB_PATH=data/key.duckdb node scripts/db-init/setup-database.js && DUCKDB_PATH=data/stis.duckdb node scripts/db-init/setup-database.js"
   },
   "dependencies": {
     "duckdb": "^1.0.0",
-    "hono": "^4.5.11"
+    "hono": "^4.5.11",
+    "@duckdb/node-api": "^0.10.1",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "@types/bun": "^1.1.8",
