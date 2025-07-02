@@ -15,7 +15,7 @@
   "dependencies": {
     "duckdb": "^1.0.0",
     "hono": "^4.5.11",
-    "@duckdb/node-api": "^0.10.2",
+    "@duckdb/node-api": "^0.10.1",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
