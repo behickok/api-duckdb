@@ -1,5 +1,6 @@
-import { DuckDBInstance } from '@duckdb/node-api'
-import bcrypt from 'bcryptjs'
+
+import duckdb from "duckdb"
+
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
@@ -18,92 +19,38 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true })
 }
 
-async function bindParameters(preparedStatement, params = []) {
-  if (params && params.length > 0) {
-    params.forEach((param, index) => {
-      const bindIndex = index + 1
-      if (typeof param === 'string') {
-        preparedStatement.bindVarchar(bindIndex, param)
-      } else if (typeof param === 'number' && Number.isInteger(param)) {
-        preparedStatement.bindInteger(bindIndex, param)
-      } else if (typeof param === 'number') {
-        preparedStatement.bindDouble(bindIndex, param)
-      } else if (param === null || param === undefined) {
-        preparedStatement.bindNull(bindIndex)
-      } else {
-        console.warn(`Unsupported parameter type for binding at index ${index}: ${typeof param}. Binding as Varchar.`)
-        preparedStatement.bindVarchar(bindIndex, String(param))
-      }
-    })
-  }
+const db = new duckdb.Database(dbPath)
+
+function runStatement(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, err => {
+      if (err) reject(err); else resolve();
+    });
+  });
 }
 
-async function runQuery(db, sql, params = []) {
-  if (params && params.length > 0) {
-    let preparedStatement
-    try {
-      preparedStatement = await db.prepare(sql)
-      await bindParameters(preparedStatement, params)
-      const reader = await preparedStatement.runAndReadAll()
-      return reader.getRows()
-    } finally {
-      if (preparedStatement && typeof preparedStatement.dispose === 'function') {
-        await preparedStatement.dispose()
-      }
-    }
-  } else {
-    const reader = await db.runAndReadAll(sql)
-    return reader.getRows()
-  }
+function runQuery(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err); else resolve(rows);
+    });
+  });
 }
 
-async function runStatement(db, sql, params = []) {
-  let preparedStatement
-  let queryResult
-  try {
-    preparedStatement = await db.prepare(sql)
-    await bindParameters(preparedStatement, params)
-    queryResult = await preparedStatement.run()
-  } finally {
-    if (queryResult && typeof queryResult.dispose === 'function') {
-      await queryResult.dispose()
-    }
-    if (preparedStatement && typeof preparedStatement.dispose === 'function') {
-      await preparedStatement.dispose()
-    }
-  }
-}
 
 async function main() {
-  let duckDBInstance
-  let dbConnection
 
   try {
-    console.log('Attempting to open/create database...')
-    duckDBInstance = await DuckDBInstance.create(dbPath)
-    dbConnection = await duckDBInstance.connect()
-    console.log('Database instance created and connected successfully.')
-
     console.log('Initializing database schema and seeding data...')
 
-    await runStatement(dbConnection, `CREATE SEQUENCE IF NOT EXISTS users_id_seq START 1;`)
-    await runStatement(dbConnection, `CREATE SEQUENCE IF NOT EXISTS report_configurations_id_seq START 1;`)
+    await runStatement( `CREATE SEQUENCE IF NOT EXISTS report_configurations_id_seq START 1;`)
     console.log('Sequences for IDs ensured.')
 
-    await runStatement(dbConnection, `DROP TABLE IF EXISTS sample_data;`)
+    await runStatement( `DROP TABLE IF EXISTS sample_data;`)
     console.log("Old 'sample_data' table dropped if it existed.")
 
-    await runStatement(dbConnection, `
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY DEFAULT nextval('users_id_seq'),
-                username VARCHAR(255) UNIQUE NOT NULL,
-                hashed_password VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'admin'))
-            );
-        `)
-    console.log("'users' table schema ensured.")
+    await runStatement( `
 
-    await runStatement(dbConnection, `
             CREATE TABLE IF NOT EXISTS report_configurations (
                 id INTEGER PRIMARY KEY DEFAULT nextval('report_configurations_id_seq'),
                 label VARCHAR(255) NOT NULL,
@@ -116,7 +63,9 @@ async function main() {
         `)
     console.log("'report_configurations' table schema ensured.")
 
-    await runStatement(dbConnection, `
+
+    await runStatement( `
+
             CREATE TABLE IF NOT EXISTS agentic_workflows (
                 id VARCHAR(255) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -133,7 +82,8 @@ async function main() {
         `)
     console.log("'agentic_workflows' table schema ensured.")
 
-    const agenticWorkflowsCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM agentic_workflows')
+    const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*) FROM agentic_workflows')
+
     if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && Number(agenticWorkflowsCountResult[0][0]) === 0) {
       const workflowsToSeed = [
         {
@@ -185,7 +135,8 @@ async function main() {
         }
       ]
       for (const wf of workflowsToSeed) {
-        await runStatement(dbConnection, `
+
+        await runStatement( `
                     INSERT INTO agentic_workflows (id, name, description, target_script_path, handler_function_name, parameters_schema, trigger_type, cron_schedule, output_type)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
                 `, [wf.id, wf.name, wf.description, wf.target_script_path, wf.handler_function_name, wf.parameters_schema, wf.trigger_type, wf.cron_schedule, wf.output_type])
@@ -195,7 +146,7 @@ async function main() {
       console.log("'agentic_workflows' data already exists or an error occurred during count.")
     }
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPAIR (
                 ACCT VARCHAR(14) PRIMARY KEY,
                 NAME VARCHAR(50),
@@ -206,7 +157,7 @@ async function main() {
         `)
     console.log("'FRPAIR' table schema ensured.")
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPHOLD (
                 AACCT VARCHAR(14),
                 HID VARCHAR(255),
@@ -220,7 +171,7 @@ async function main() {
         `)
     console.log("'FRPHOLD' table schema ensured.")
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPTRAN (
                 AACCT VARCHAR(14),
                 HID VARCHAR(255),
@@ -236,7 +187,7 @@ async function main() {
         `)
     console.log("'FRPTRAN' table schema ensured.")
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPSECTR (
                 ACCT VARCHAR(14),
                 HID VARCHAR(255),
@@ -255,7 +206,8 @@ async function main() {
         `)
     console.log("'FRPSECTR' table schema ensured.")
 
-    await runStatement(dbConnection, `
+
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPCTG (
                 SECTOR VARCHAR(255) PRIMARY KEY,
                 CATEGORY VARCHAR(255)
@@ -263,7 +215,7 @@ async function main() {
         `)
     console.log("'FRPCTG' table schema ensured.")
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPSI1 (
                 SIFLAG VARCHAR(255),
                 SORI VARCHAR(255),
@@ -273,7 +225,8 @@ async function main() {
         `)
     console.log("'FRPSI1' table schema ensured.")
 
-    await runStatement(dbConnection, `
+
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPSEC (
                 ID VARCHAR(255) PRIMARY KEY,
                 NAMETKR VARCHAR(255),
@@ -283,7 +236,8 @@ async function main() {
         `)
     console.log("'FRPSEC' table schema ensured.")
 
-    await runStatement(dbConnection, `
+
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPPRICE (
                 ID VARCHAR(255),
                 SDATE DATE,
@@ -293,7 +247,7 @@ async function main() {
         `)
     console.log("'FRPPRICE' table schema ensured.")
 
-    await runStatement(dbConnection, `
+    await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPAGG (
                 AGG VARCHAR(14),
                 ACCT VARCHAR(14),
@@ -322,23 +276,15 @@ async function main() {
         `)
     console.log("'FRPAGG' table schema ensured.")
 
-    const usersCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM users WHERE username = $1', ['admin'])
-    if (usersCountResult && usersCountResult.length > 0 && Number(usersCountResult[0][0]) === 0) {
-      const saltRounds = 10
-      const hashedPassword = await bcrypt.hash('admin', saltRounds)
-      await runStatement(dbConnection, 'INSERT INTO users (username, hashed_password, role) VALUES ($1, $2, $3)', ['admin', hashedPassword, 'admin'])
-      console.log("Admin user 'admin' seeded.")
-    } else {
-      console.log("Admin user 'admin' already exists.")
-    }
 
-    const reportsCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM report_configurations')
+    const reportsCountResult = await runQuery( 'SELECT COUNT(*) FROM report_configurations')
     if (reportsCountResult && reportsCountResult.length > 0 && Number(reportsCountResult[0][0]) > 0) {
-      await runStatement(dbConnection, 'DELETE FROM report_configurations')
+      await runStatement( 'DELETE FROM report_configurations')
       console.log('Cleared existing report configurations.')
     }
 
-    const freshReportsCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM report_configurations')
+    const freshReportsCountResult = await runQuery( 'SELECT COUNT(*) FROM report_configurations')
+
     if (freshReportsCountResult && freshReportsCountResult.length > 0 && Number(freshReportsCountResult[0][0]) === 0) {
       const newReports = [
         {
@@ -455,11 +401,12 @@ async function main() {
         }
       ]
 
-      const maxIdResult = await runQuery(dbConnection, 'SELECT MAX(id) FROM report_configurations')
+
+      const maxIdResult = await runQuery( 'SELECT MAX(id) FROM report_configurations')
       const nextId = (maxIdResult && maxIdResult[0] && maxIdResult[0][0] !== null) ? Number(maxIdResult[0][0]) + 1 : 1
       const maxInsertedId = newReports.reduce((max, r) => Math.max(max, r.id), 0)
       for (const report of newReports) {
-        await runStatement(dbConnection,
+        await runStatement(
                     'INSERT INTO report_configurations (id, label, query_template, column_definitions, parameter_definitions, crud_config, ai_prompt_template) VALUES ($1, $2, $3, $4, $5, $6, $7)',
                     [report.id, report.label, report.query_template, report.column_definitions, report.parameter_definitions, report.crud_config, report.ai_prompt_template]
                 )
@@ -483,7 +430,8 @@ async function main() {
       return `${year}${month}`
     }
 
-    const frpairCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPAIR')
+
+    const frpairCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAIR')
     if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0][0]) === 0) {
       const accounts = [
         { ACCT: 'ACC1001', NAME: 'Global Equity Fund', FYE: 1231, ICPDATED: formatDate(new Date(2010, 0, 15)), ACTIVE: 'Open' },
@@ -493,7 +441,8 @@ async function main() {
         { ACCT: 'ACC1005', NAME: 'Balanced Portfolio', FYE: 930, ICPDATED: formatDate(new Date(2020, 1, 25)), ACTIVE: 'Open' },
       ]
       for (const acc of accounts) {
-        await runStatement(dbConnection, 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES ($1, $2, $3, $4, $5)',
+
+        await runStatement( 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES ($1, $2, $3, $4, $5)',
                     [acc.ACCT, acc.NAME, acc.FYE, acc.ICPDATED, acc.ACTIVE])
       }
       console.log('FRPAIR table seeded.')
@@ -501,7 +450,8 @@ async function main() {
       console.log('FRPAIR data already exists or an error occurred.')
     }
 
-    const frpsecCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPSEC')
+
+    const frpsecCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSEC')
     if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0][0]) === 0) {
       const securities = [
         { ID: 'SEC001', NAMETKR: 'Apple Inc.', TICKER: 'AAPL', CUSIP: '037833100' },
@@ -511,7 +461,8 @@ async function main() {
         { ID: 'SEC005', NAMETKR: 'Gold Spot', TICKER: 'XAUUSD', CUSIP: 'GOLDSPOTX' },
       ]
       for (const sec of securities) {
-        await runStatement(dbConnection, 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES ($1, $2, $3, $4)',
+
+        await runStatement( 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES ($1, $2, $3, $4)',
                     [sec.ID, sec.NAMETKR, sec.TICKER, sec.CUSIP])
       }
       console.log('FRPSEC table seeded.')
@@ -521,7 +472,7 @@ async function main() {
 
     const basePrices = { 'SEC001': 150, 'SEC002': 250, 'SEC003': 102, 'SEC004': 200, 'SEC005': 1800 }
 
-    const frppriceCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPPRICE')
+    const frppriceCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPPRICE')
     if (frppriceCountResult && frppriceCountResult.length > 0 && Number(frppriceCountResult[0][0]) === 0) {
       const prices = []
       const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
@@ -535,7 +486,8 @@ async function main() {
         }
       }
       for (const price of prices) {
-        await runStatement(dbConnection, 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES ($1, $2, $3)',
+
+        await runStatement( 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES ($1, $2, $3)',
                     [price.ID, price.SDATE, price.SPRICE])
       }
       console.log('FRPPRICE table seeded.')
@@ -543,7 +495,8 @@ async function main() {
       console.log('FRPPRICE data already exists or an error occurred.')
     }
 
-    const frpholdCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPHOLD')
+
+    const frpholdCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPHOLD')
     if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0][0]) === 0) {
       const holdings = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
@@ -568,7 +521,8 @@ async function main() {
         }
       }
       for (const hold of holdings) {
-        await runStatement(dbConnection, 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+
+        await runStatement( 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES ($1, $2, $3, $4, $5, $6, $7)',
                     [hold.AACCT, hold.HID, hold.ADATE, hold.HDIRECT1, hold.HUNITS, hold.HPRINCIPAL, hold.HACCRUAL])
       }
       console.log('FRPHOLD table seeded.')
@@ -576,7 +530,7 @@ async function main() {
       console.log('FRPHOLD data already exists or an error occurred.')
     }
 
-    const frptranCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPTRAN')
+    const frptranCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPTRAN')
     if (frptranCountResult && frptranCountResult.length > 0 && Number(frptranCountResult[0][0]) === 0) {
       const transactions = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
@@ -609,7 +563,8 @@ async function main() {
         }
       }
       for (const tran of transactions) {
-        await runStatement(dbConnection,
+
+        await runStatement(
                     'INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
                     [tran.AACCT, tran.HID, tran.ADATE, tran.TDATE, tran.TCODE, tran.TUNITS, tran.TPRINCIPAL, tran.TINCOME, tran.FEE])
       }
@@ -618,7 +573,7 @@ async function main() {
       console.log('FRPTRAN data already exists or an error occurred.')
     }
 
-    const frpsectorCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPSECTR')
+    const frpsectorCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSECTR')
     if (frpsectorCountResult && frpsectorCountResult.length > 0 && Number(frpsectorCountResult[0][0]) === 0) {
       const performanceData = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
@@ -652,7 +607,8 @@ async function main() {
         }
       }
       for (const perf of performanceData) {
-        await runStatement(dbConnection,
+
+        await runStatement(
                     'INSERT INTO FRPSECTR (ACCT, HID, ADATE, SECTOR, UVR, MKT, PMKT, POS, NEG, PF, NF, INC) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
                     [perf.ACCT, perf.HID, perf.ADATE, perf.SECTOR, perf.UVR, perf.MKT, perf.PMKT, perf.POS, perf.NEG, perf.PF, perf.NF, perf.INC])
       }
@@ -661,7 +617,7 @@ async function main() {
       console.log('FRPSECTR data already exists or an error occurred.')
     }
 
-    const frpctgCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPCTG')
+    const frpctgCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPCTG')
     if (frpctgCountResult && frpctgCountResult.length > 0 && Number(frpctgCountResult[0][0]) === 0) {
       const classifications = [
         { SECTOR: 'US_EQUITY_LARGE', CATEGORY: 'US_EQUITY' },
@@ -678,14 +634,17 @@ async function main() {
         { SECTOR: 'ALTERNATIVES', CATEGORY: 'TOTAL_FUND' },
       ]
       for (const clas of classifications) {
-        await runStatement(dbConnection, 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES ($1, $2)', [clas.SECTOR, clas.CATEGORY])
+
+        await runStatement( 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES ($1, $2)', [clas.SECTOR, clas.CATEGORY])
+
       }
       console.log('FRPCTG table seeded.')
     } else {
       console.log('FRPCTG data already exists or an error occurred.')
     }
 
-    const frpsi1CountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPSI1')
+    const frpsi1CountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSI1')
+
     if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0][0]) === 0) {
       const descriptions = [
         { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_LARGE', SORINAME: 'US Large Cap Equity' },
@@ -705,14 +664,18 @@ async function main() {
         { SIFLAG: 'INDEX', SORI: 'AGG_BOND', SORINAME: 'Bloomberg Barclays Aggregate Bond Index' },
       ]
       for (const desc of descriptions) {
-        await runStatement(dbConnection, 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES ($1, $2, $3)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
+
+        await runStatement( 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES ($1, $2, $3)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
+
       }
       console.log('FRPSI1 table seeded.')
     } else {
       console.log('FRPSI1 data already exists or an error occurred.')
     }
 
-    const frpaggCountResult = await runQuery(dbConnection, 'SELECT COUNT(*) FROM FRPAGG')
+
+    const frpaggCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAGG')
+
     if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0][0]) === 0) {
       const aggregations = [
         { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1001', DTOVER__1: '201001 999912' },
@@ -730,7 +693,9 @@ async function main() {
         }
         params.push(...dtoverValues)
         const valuePlaceholders = dtoverValues.map((_,i) => `$${i+3}`).join(', ')
-        await runStatement(dbConnection,
+
+        await runStatement(
+
                     `INSERT INTO FRPAGG (AGG, ACCT, ${Array.from({length: 20}, (_, i) => `DTOVER__${i+1}`).join(', ')}) VALUES ($1, $2, ${valuePlaceholders})`,
                     params)
       }
@@ -742,10 +707,12 @@ async function main() {
     console.log('Database initialization script completed successfully with new data model and seeding.')
 
     console.log('\n--- Verifying Table Counts ---')
-    const tablesToVerify = ['FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1', 'FRPSEC', 'FRPPRICE', 'FRPAGG', 'users', 'report_configurations', 'agentic_workflows']
+
+    const tablesToVerify = ['FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1', 'FRPSEC', 'FRPPRICE', 'FRPAGG', 'report_configurations', 'agentic_workflows']
     for (const tableName of tablesToVerify) {
       try {
-        const result = await runQuery(dbConnection, `SELECT COUNT(*) FROM ${tableName}`)
+        const result = await runQuery( `SELECT COUNT(*) FROM ${tableName}`)
+
         if (result && result.length > 0 && result[0] && typeof result[0][0] === 'bigint') {
           console.log(`Count for ${tableName}: ${result[0][0]}`)
         } else {
@@ -758,16 +725,15 @@ async function main() {
     console.log('--- Verification Counts End ---')
 
   } catch (err) {
-    console.error('Error during database initialization:', err)
-    process.exitCode = 1
+    console.error("Error during database initialization:", err);
+    process.exitCode = 1;
   } finally {
-    if (dbConnection && typeof dbConnection.dispose === 'function') {
-      try { await dbConnection.dispose(); console.log('Database connection disposed.') } catch(e) { console.error('Error disposing connection', e) }
-    }
-    if (duckDBInstance && typeof duckDBInstance.dispose === 'function') {
-      try { await duckDBInstance.dispose(); console.log('DuckDB instance disposed.') } catch(e) { console.error('Error disposing instance', e) }
-    }
-    process.exit(process.exitCode || 0)
+    db.close(err => {
+      if (err) console.error("Error closing database", err);
+      else console.log("Database connection closed.");
+    });
+    process.exit(process.exitCode || 0);
+
   }
 }
 
