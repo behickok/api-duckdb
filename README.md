@@ -22,6 +22,7 @@ bun start
 - GET /sales: List all sales transactions
 - GET /sales/daily: Get daily sales data
 - GET /sales/summary: Get sales summary by category
+- POST /query: Execute a custom SQL query (requires API key)
 
 ## Deploy
 
