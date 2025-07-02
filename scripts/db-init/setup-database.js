@@ -1,4 +1,6 @@
+
 import duckdb from "duckdb"
+
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
@@ -16,6 +18,7 @@ if (!fs.existsSync(dbDir)) {
   console.log(`Creating database directory at: ${dbDir}`)
   fs.mkdirSync(dbDir, { recursive: true })
 }
+
 const db = new duckdb.Database(dbPath)
 
 function runStatement(sql, params = []) {
@@ -47,6 +50,7 @@ async function main() {
     console.log("Old 'sample_data' table dropped if it existed.")
 
     await runStatement( `
+
             CREATE TABLE IF NOT EXISTS report_configurations (
                 id INTEGER PRIMARY KEY DEFAULT nextval('report_configurations_id_seq'),
                 label VARCHAR(255) NOT NULL,
@@ -59,7 +63,9 @@ async function main() {
         `)
     console.log("'report_configurations' table schema ensured.")
 
+
     await runStatement( `
+
             CREATE TABLE IF NOT EXISTS agentic_workflows (
                 id VARCHAR(255) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -77,6 +83,7 @@ async function main() {
     console.log("'agentic_workflows' table schema ensured.")
 
     const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*) FROM agentic_workflows')
+
     if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && Number(agenticWorkflowsCountResult[0][0]) === 0) {
       const workflowsToSeed = [
         {
@@ -128,6 +135,7 @@ async function main() {
         }
       ]
       for (const wf of workflowsToSeed) {
+
         await runStatement( `
                     INSERT INTO agentic_workflows (id, name, description, target_script_path, handler_function_name, parameters_schema, trigger_type, cron_schedule, output_type)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
@@ -198,6 +206,7 @@ async function main() {
         `)
     console.log("'FRPSECTR' table schema ensured.")
 
+
     await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPCTG (
                 SECTOR VARCHAR(255) PRIMARY KEY,
@@ -216,6 +225,7 @@ async function main() {
         `)
     console.log("'FRPSI1' table schema ensured.")
 
+
     await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPSEC (
                 ID VARCHAR(255) PRIMARY KEY,
@@ -225,6 +235,7 @@ async function main() {
             );
         `)
     console.log("'FRPSEC' table schema ensured.")
+
 
     await runStatement( `
             CREATE TABLE IF NOT EXISTS FRPPRICE (
@@ -273,6 +284,7 @@ async function main() {
     }
 
     const freshReportsCountResult = await runQuery( 'SELECT COUNT(*) FROM report_configurations')
+
     if (freshReportsCountResult && freshReportsCountResult.length > 0 && Number(freshReportsCountResult[0][0]) === 0) {
       const newReports = [
         {
@@ -389,6 +401,7 @@ async function main() {
         }
       ]
 
+
       const maxIdResult = await runQuery( 'SELECT MAX(id) FROM report_configurations')
       const nextId = (maxIdResult && maxIdResult[0] && maxIdResult[0][0] !== null) ? Number(maxIdResult[0][0]) + 1 : 1
       const maxInsertedId = newReports.reduce((max, r) => Math.max(max, r.id), 0)
@@ -417,6 +430,7 @@ async function main() {
       return `${year}${month}`
     }
 
+
     const frpairCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAIR')
     if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0][0]) === 0) {
       const accounts = [
@@ -427,6 +441,7 @@ async function main() {
         { ACCT: 'ACC1005', NAME: 'Balanced Portfolio', FYE: 930, ICPDATED: formatDate(new Date(2020, 1, 25)), ACTIVE: 'Open' },
       ]
       for (const acc of accounts) {
+
         await runStatement( 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES ($1, $2, $3, $4, $5)',
                     [acc.ACCT, acc.NAME, acc.FYE, acc.ICPDATED, acc.ACTIVE])
       }
@@ -434,6 +449,7 @@ async function main() {
     } else {
       console.log('FRPAIR data already exists or an error occurred.')
     }
+
 
     const frpsecCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSEC')
     if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0][0]) === 0) {
@@ -445,6 +461,7 @@ async function main() {
         { ID: 'SEC005', NAMETKR: 'Gold Spot', TICKER: 'XAUUSD', CUSIP: 'GOLDSPOTX' },
       ]
       for (const sec of securities) {
+
         await runStatement( 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES ($1, $2, $3, $4)',
                     [sec.ID, sec.NAMETKR, sec.TICKER, sec.CUSIP])
       }
@@ -469,6 +486,7 @@ async function main() {
         }
       }
       for (const price of prices) {
+
         await runStatement( 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES ($1, $2, $3)',
                     [price.ID, price.SDATE, price.SPRICE])
       }
@@ -476,6 +494,7 @@ async function main() {
     } else {
       console.log('FRPPRICE data already exists or an error occurred.')
     }
+
 
     const frpholdCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPHOLD')
     if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0][0]) === 0) {
@@ -502,6 +521,7 @@ async function main() {
         }
       }
       for (const hold of holdings) {
+
         await runStatement( 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES ($1, $2, $3, $4, $5, $6, $7)',
                     [hold.AACCT, hold.HID, hold.ADATE, hold.HDIRECT1, hold.HUNITS, hold.HPRINCIPAL, hold.HACCRUAL])
       }
@@ -543,6 +563,7 @@ async function main() {
         }
       }
       for (const tran of transactions) {
+
         await runStatement(
                     'INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
                     [tran.AACCT, tran.HID, tran.ADATE, tran.TDATE, tran.TCODE, tran.TUNITS, tran.TPRINCIPAL, tran.TINCOME, tran.FEE])
@@ -586,6 +607,7 @@ async function main() {
         }
       }
       for (const perf of performanceData) {
+
         await runStatement(
                     'INSERT INTO FRPSECTR (ACCT, HID, ADATE, SECTOR, UVR, MKT, PMKT, POS, NEG, PF, NF, INC) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
                     [perf.ACCT, perf.HID, perf.ADATE, perf.SECTOR, perf.UVR, perf.MKT, perf.PMKT, perf.POS, perf.NEG, perf.PF, perf.NF, perf.INC])
@@ -612,7 +634,9 @@ async function main() {
         { SECTOR: 'ALTERNATIVES', CATEGORY: 'TOTAL_FUND' },
       ]
       for (const clas of classifications) {
+
         await runStatement( 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES ($1, $2)', [clas.SECTOR, clas.CATEGORY])
+
       }
       console.log('FRPCTG table seeded.')
     } else {
@@ -620,6 +644,7 @@ async function main() {
     }
 
     const frpsi1CountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSI1')
+
     if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0][0]) === 0) {
       const descriptions = [
         { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_LARGE', SORINAME: 'US Large Cap Equity' },
@@ -639,14 +664,18 @@ async function main() {
         { SIFLAG: 'INDEX', SORI: 'AGG_BOND', SORINAME: 'Bloomberg Barclays Aggregate Bond Index' },
       ]
       for (const desc of descriptions) {
+
         await runStatement( 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES ($1, $2, $3)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
+
       }
       console.log('FRPSI1 table seeded.')
     } else {
       console.log('FRPSI1 data already exists or an error occurred.')
     }
 
+
     const frpaggCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAGG')
+
     if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0][0]) === 0) {
       const aggregations = [
         { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1001', DTOVER__1: '201001 999912' },
@@ -664,7 +693,9 @@ async function main() {
         }
         params.push(...dtoverValues)
         const valuePlaceholders = dtoverValues.map((_,i) => `$${i+3}`).join(', ')
+
         await runStatement(
+
                     `INSERT INTO FRPAGG (AGG, ACCT, ${Array.from({length: 20}, (_, i) => `DTOVER__${i+1}`).join(', ')}) VALUES ($1, $2, ${valuePlaceholders})`,
                     params)
       }
@@ -676,10 +707,12 @@ async function main() {
     console.log('Database initialization script completed successfully with new data model and seeding.')
 
     console.log('\n--- Verifying Table Counts ---')
+
     const tablesToVerify = ['FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1', 'FRPSEC', 'FRPPRICE', 'FRPAGG', 'report_configurations', 'agentic_workflows']
     for (const tableName of tablesToVerify) {
       try {
         const result = await runQuery( `SELECT COUNT(*) FROM ${tableName}`)
+
         if (result && result.length > 0 && result[0] && typeof result[0][0] === 'bigint') {
           console.log(`Count for ${tableName}: ${result[0][0]}`)
         } else {
@@ -690,6 +723,7 @@ async function main() {
       }
     }
     console.log('--- Verification Counts End ---')
+
   } catch (err) {
     console.error("Error during database initialization:", err);
     process.exitCode = 1;
@@ -699,6 +733,7 @@ async function main() {
       else console.log("Database connection closed.");
     });
     process.exit(process.exitCode || 0);
+
   }
 }
 
