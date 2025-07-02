@@ -138,7 +138,7 @@ async function main() {
 
         await runStatement( `
                     INSERT INTO agentic_workflows (id, name, description, target_script_path, handler_function_name, parameters_schema, trigger_type, cron_schedule, output_type)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                 `, [wf.id, wf.name, wf.description, wf.target_script_path, wf.handler_function_name, wf.parameters_schema, wf.trigger_type, wf.cron_schedule, wf.output_type])
       }
       console.log("'agentic_workflows' table seeded with sample data.")
@@ -406,8 +406,8 @@ async function main() {
       const nextId = (maxIdResult && maxIdResult[0] && maxIdResult[0][0] !== null) ? Number(maxIdResult[0][0]) + 1 : 1
       const maxInsertedId = newReports.reduce((max, r) => Math.max(max, r.id), 0)
       for (const report of newReports) {
-        await runStatement(
-                    'INSERT INTO report_configurations (id, label, query_template, column_definitions, parameter_definitions, crud_config, ai_prompt_template) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+          await runStatement(
+                    'INSERT INTO report_configurations (id, label, query_template, column_definitions, parameter_definitions, crud_config, ai_prompt_template) VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [report.id, report.label, report.query_template, report.column_definitions, report.parameter_definitions, report.crud_config, report.ai_prompt_template]
                 )
       }
@@ -442,7 +442,7 @@ async function main() {
       ]
       for (const acc of accounts) {
 
-        await runStatement( 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES ($1, $2, $3, $4, $5)',
+        await runStatement( 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES (?, ?, ?, ?, ?)',
                     [acc.ACCT, acc.NAME, acc.FYE, acc.ICPDATED, acc.ACTIVE])
       }
       console.log('FRPAIR table seeded.')
@@ -462,7 +462,7 @@ async function main() {
       ]
       for (const sec of securities) {
 
-        await runStatement( 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES ($1, $2, $3, $4)',
+        await runStatement( 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES (?, ?, ?, ?)',
                     [sec.ID, sec.NAMETKR, sec.TICKER, sec.CUSIP])
       }
       console.log('FRPSEC table seeded.')
@@ -487,7 +487,7 @@ async function main() {
       }
       for (const price of prices) {
 
-        await runStatement( 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES ($1, $2, $3)',
+        await runStatement( 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES (?, ?, ?)',
                     [price.ID, price.SDATE, price.SPRICE])
       }
       console.log('FRPPRICE table seeded.')
@@ -522,7 +522,7 @@ async function main() {
       }
       for (const hold of holdings) {
 
-        await runStatement( 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        await runStatement( 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [hold.AACCT, hold.HID, hold.ADATE, hold.HDIRECT1, hold.HUNITS, hold.HPRINCIPAL, hold.HACCRUAL])
       }
       console.log('FRPHOLD table seeded.')
@@ -565,7 +565,7 @@ async function main() {
       for (const tran of transactions) {
 
         await runStatement(
-                    'INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+                    'INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [tran.AACCT, tran.HID, tran.ADATE, tran.TDATE, tran.TCODE, tran.TUNITS, tran.TPRINCIPAL, tran.TINCOME, tran.FEE])
       }
       console.log('FRPTRAN table seeded.')
@@ -609,7 +609,7 @@ async function main() {
       for (const perf of performanceData) {
 
         await runStatement(
-                    'INSERT INTO FRPSECTR (ACCT, HID, ADATE, SECTOR, UVR, MKT, PMKT, POS, NEG, PF, NF, INC) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+                    'INSERT INTO FRPSECTR (ACCT, HID, ADATE, SECTOR, UVR, MKT, PMKT, POS, NEG, PF, NF, INC) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [perf.ACCT, perf.HID, perf.ADATE, perf.SECTOR, perf.UVR, perf.MKT, perf.PMKT, perf.POS, perf.NEG, perf.PF, perf.NF, perf.INC])
       }
       console.log('FRPSECTR table seeded.')
@@ -635,7 +635,7 @@ async function main() {
       ]
       for (const clas of classifications) {
 
-        await runStatement( 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES ($1, $2)', [clas.SECTOR, clas.CATEGORY])
+        await runStatement( 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES (?, ?)', [clas.SECTOR, clas.CATEGORY])
 
       }
       console.log('FRPCTG table seeded.')
@@ -665,7 +665,7 @@ async function main() {
       ]
       for (const desc of descriptions) {
 
-        await runStatement( 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES ($1, $2, $3)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
+        await runStatement( 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES (?, ?, ?)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
 
       }
       console.log('FRPSI1 table seeded.')
@@ -692,11 +692,11 @@ async function main() {
           dtoverValues.push(agg[`DTOVER__${i}`] || null)
         }
         params.push(...dtoverValues)
-        const valuePlaceholders = dtoverValues.map((_,i) => `$${i+3}`).join(', ')
+        const valuePlaceholders = dtoverValues.map(() => '?').join(', ')
 
         await runStatement(
 
-                    `INSERT INTO FRPAGG (AGG, ACCT, ${Array.from({length: 20}, (_, i) => `DTOVER__${i+1}`).join(', ')}) VALUES ($1, $2, ${valuePlaceholders})`,
+                    `INSERT INTO FRPAGG (AGG, ACCT, ${Array.from({length: 20}, (_, i) => `DTOVER__${i+1}`).join(', ')}) VALUES (?, ?, ${valuePlaceholders})`,
                     params)
       }
       console.log('FRPAGG table seeded.')
