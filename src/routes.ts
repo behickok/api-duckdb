@@ -2,7 +2,6 @@ import { Hono, type Context } from 'hono'
 import { Database } from 'duckdb'
 import { QUERIES } from './db'
 
-const API_KEY = 'secret123'
 
 interface SalesRecord {
   id: number
@@ -27,12 +26,12 @@ interface DailySales {
   daily_revenue: number
 }
 
-export function setupRoutes(app: Hono, db: Database): void {
+export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultDb: Database): void {
   app.get('/', (c) => c.text('DuckDB Analytics API'))
 
-  const executeQuery = async <T>(query: string): Promise<T[]> => {
+  const executeQuery = async <T>(dbConn: Database, query: string): Promise<T[]> => {
     return new Promise((resolve, reject) => {
-      db.all(query, (err: Error | null, rows: any[]) => {
+      dbConn.all(query, (err: Error | null, rows: any[]) => {
         if (err) reject(err)
         resolve(rows as T[])
       })
@@ -45,23 +44,24 @@ export function setupRoutes(app: Hono, db: Database): void {
   }
 
   app.get('/sales', async (c) => {
-    const rows = await executeQuery<SalesRecord>(QUERIES.allSales)
+    const rows = await executeQuery<SalesRecord>(defaultDb, QUERIES.allSales)
     return sendJsonResponse(c, rows)
   })
 
   app.get('/sales/summary', async (c) => {
-    const rows = await executeQuery<SalesSummary>(QUERIES.salesSummary)
+    const rows = await executeQuery<SalesSummary>(defaultDb, QUERIES.salesSummary)
     return sendJsonResponse(c, rows)
   })
 
   app.get('/sales/daily', async (c) => {
-    const rows = await executeQuery<DailySales>(QUERIES.dailySales)
+    const rows = await executeQuery<DailySales>(defaultDb, QUERIES.dailySales)
     return sendJsonResponse(c, rows)
   })
 
   app.post('/query', async (c) => {
     const key = c.req.header('x-api-key')
-    if (key !== API_KEY) {
+    const db = key ? dbMap[key] : undefined
+    if (!db) {
       return c.json({ error: 'Unauthorized' }, 401)
     }
 
@@ -77,7 +77,7 @@ export function setupRoutes(app: Hono, db: Database): void {
     }
 
     try {
-      const rows = await executeQuery<any>(body.query)
+      const rows = await executeQuery<any>(db, body.query)
       return sendJsonResponse(c, rows)
     } catch (err) {
       return c.json({ error: String(err) }, 400)

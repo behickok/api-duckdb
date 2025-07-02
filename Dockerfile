@@ -18,6 +18,9 @@ RUN bun install
 # Copy the rest of your application
 COPY . .
 
+# Run database setup scripts for key and stis
+RUN bun run build
+
 # Set environment variable
 ENV NODE_ENV=production
 
