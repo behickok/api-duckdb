@@ -20,6 +20,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const db = new duckdb.Database(dbPath)
+const dataDir = path.join(__dirname, 'data')
 
 const onlyTable = process.env.TABLE ? process.env.TABLE.toLowerCase() : null
 const VALID_TABLES = [
@@ -482,18 +483,8 @@ async function main() {
     if (shouldRun('FRPAIR')) {
     const frpairCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAIR')
     if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0].cnt) === 0) {
-      const accounts = [
-        { ACCT: 'ACC1001', NAME: 'Global Equity Fund', FYE: 1231, ICPDATED: formatDate(new Date(2010, 0, 15)), ACTIVE: 'Open' },
-        { ACCT: 'ACC1002', NAME: 'Fixed Income Trust', FYE: 1231, ICPDATED: formatDate(new Date(2015, 5, 20)), ACTIVE: 'Open' },
-        { ACCT: 'ACC1003', NAME: 'Emerging Markets Fund', FYE: 630, ICPDATED: formatDate(new Date(2018, 8, 10)), ACTIVE: 'Open' },
-        { ACCT: 'ACC1004', NAME: 'Real Estate Investment', FYE: 1231, ICPDATED: formatDate(new Date(2012, 3, 5)), ACTIVE: 'Closed' },
-        { ACCT: 'ACC1005', NAME: 'Balanced Portfolio', FYE: 930, ICPDATED: formatDate(new Date(2020, 1, 25)), ACTIVE: 'Open' },
-      ]
-      for (const acc of accounts) {
-
-        await runStatement( 'INSERT INTO FRPAIR (ACCT, NAME, FYE, ICPDATED, ACTIVE) VALUES (?, ?, ?, ?, ?)',
-                    [acc.ACCT, acc.NAME, acc.FYE, acc.ICPDATED, acc.ACTIVE])
-      }
+      const csvPath = path.join(dataDir, 'frpair.csv')
+      await runStatement(`COPY FRPAIR FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPAIR table seeded.')
     } else {
       console.log('FRPAIR data already exists or an error occurred.')
@@ -504,18 +495,8 @@ async function main() {
     if (shouldRun('FRPSEC')) {
     const frpsecCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSEC')
     if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0].cnt) === 0) {
-      const securities = [
-        { ID: 'SEC001', NAMETKR: 'Apple Inc.', TICKER: 'AAPL', CUSIP: '037833100' },
-        { ID: 'SEC002', NAMETKR: 'Microsoft Corp.', TICKER: 'MSFT', CUSIP: '594918104' },
-        { ID: 'SEC003', NAMETKR: 'US Treasury Bond 2.5% 2030', TICKER: 'USTB2030', CUSIP: '912828X39' },
-        { ID: 'SEC004', NAMETKR: 'Vanguard Total Stock Market ETF', TICKER: 'VTI', CUSIP: '922908769' },
-        { ID: 'SEC005', NAMETKR: 'Gold Spot', TICKER: 'XAUUSD', CUSIP: 'GOLDSPOTX' },
-      ]
-      for (const sec of securities) {
-
-        await runStatement( 'INSERT INTO FRPSEC (ID, NAMETKR, TICKER, CUSIP) VALUES (?, ?, ?, ?)',
-                    [sec.ID, sec.NAMETKR, sec.TICKER, sec.CUSIP])
-      }
+      const csvPath = path.join(dataDir, 'frpsec.csv')
+      await runStatement(`COPY FRPSEC FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPSEC table seeded.')
     } else {
       console.log('FRPSEC data already exists or an error occurred.')
@@ -680,25 +661,8 @@ async function main() {
     if (shouldRun('FRPCTG')) {
     const frpctgCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPCTG')
     if (frpctgCountResult && frpctgCountResult.length > 0 && Number(frpctgCountResult[0].cnt) === 0) {
-      const classifications = [
-        { SECTOR: 'US_EQUITY_LARGE', CATEGORY: 'US_EQUITY' },
-        { SECTOR: 'US_EQUITY_SMALL', CATEGORY: 'US_EQUITY' },
-        { SECTOR: 'INTL_EQUITY_DEV', CATEGORY: 'INTL_EQUITY' },
-        { SECTOR: 'FIXED_INCOME_CORP', CATEGORY: 'FIXED_INCOME' },
-        { SECTOR: 'FIXED_INCOME_GOVT', CATEGORY: 'FIXED_INCOME' },
-        { SECTOR: 'US_EQUITY', CATEGORY: 'EQUITY' },
-        { SECTOR: 'INTL_EQUITY', CATEGORY: 'EQUITY' },
-        { SECTOR: 'EQUITY', CATEGORY: 'TOTAL_FUND' },
-        { SECTOR: 'FIXED_INCOME', CATEGORY: 'TOTAL_FUND' },
-        { SECTOR: 'REAL_ESTATE', CATEGORY: 'ALTERNATIVES' },
-        { SECTOR: 'COMMODITIES', CATEGORY: 'ALTERNATIVES' },
-        { SECTOR: 'ALTERNATIVES', CATEGORY: 'TOTAL_FUND' },
-      ]
-      for (const clas of classifications) {
-
-        await runStatement( 'INSERT INTO FRPCTG (SECTOR, CATEGORY) VALUES (?, ?)', [clas.SECTOR, clas.CATEGORY])
-
-      }
+      const csvPath = path.join(dataDir, 'frpctg.csv')
+      await runStatement(`COPY FRPCTG FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPCTG table seeded.')
     } else {
       console.log('FRPCTG data already exists or an error occurred.')
@@ -709,28 +673,8 @@ async function main() {
     const frpsi1CountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSI1')
 
     if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0].cnt) === 0) {
-      const descriptions = [
-        { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_LARGE', SORINAME: 'US Large Cap Equity' },
-        { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_SMALL', SORINAME: 'US Small Cap Equity' },
-        { SIFLAG: 'SECTOR', SORI: 'INTL_EQUITY_DEV', SORINAME: 'International Developed Equity' },
-        { SIFLAG: 'SECTOR', SORI: 'FIXED_INCOME_CORP', SORINAME: 'Corporate Fixed Income' },
-        { SIFLAG: 'SECTOR', SORI: 'FIXED_INCOME_GOVT', SORINAME: 'Government Fixed Income' },
-        { SIFLAG: 'SECTOR', SORI: 'REAL_ESTATE', SORINAME: 'Real Estate Holdings' },
-        { SIFLAG: 'SECTOR', SORI: 'COMMODITIES', SORINAME: 'Commodities Direct' },
-        { SIFLAG: 'CATEGORY', SORI: 'US_EQUITY', SORINAME: 'US Equity Composite' },
-        { SIFLAG: 'CATEGORY', SORI: 'INTL_EQUITY', SORINAME: 'International Equity Composite' },
-        { SIFLAG: 'CATEGORY', SORI: 'EQUITY', SORINAME: 'Total Equity' },
-        { SIFLAG: 'CATEGORY', SORI: 'FIXED_INCOME', SORINAME: 'Total Fixed Income' },
-        { SIFLAG: 'CATEGORY', SORI: 'ALTERNATIVES', SORINAME: 'Alternative Investments' },
-        { SIFLAG: 'CATEGORY', SORI: 'TOTAL_FUND', SORINAME: 'Total Fund Composite' },
-        { SIFLAG: 'INDEX', SORI: 'SP500', SORINAME: 'S&P 500 Index' },
-        { SIFLAG: 'INDEX', SORI: 'AGG_BOND', SORINAME: 'Bloomberg Barclays Aggregate Bond Index' },
-      ]
-      for (const desc of descriptions) {
-
-        await runStatement( 'INSERT INTO FRPSI1 (SIFLAG, SORI, SORINAME) VALUES (?, ?, ?)', [desc.SIFLAG, desc.SORI, desc.SORINAME])
-
-      }
+      const csvPath = path.join(dataDir, 'frpsi1.csv')
+      await runStatement(`COPY FRPSI1 FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPSI1 table seeded.')
     } else {
       console.log('FRPSI1 data already exists or an error occurred.')
@@ -742,28 +686,8 @@ async function main() {
     const frpaggCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAGG')
 
     if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0].cnt) === 0) {
-      const aggregations = [
-        { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1001', DTOVER__1: '201001 999912' },
-        { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1003', DTOVER__1: '201809 999912' },
-        { AGG: 'AGG_FIXED_INCOME', ACCT: 'ACC1002', DTOVER__1: '201506 999912' },
-        { AGG: 'AGG_BALANCED', ACCT: 'ACC1005', DTOVER__1: '202002 202306', DTOVER__2: '202310 999912' },
-        { AGG: 'MASTER_FUND_A', ACCT: 'AGG_TOTAL_EQUITY', DTOVER__1: '201001 999912'},
-        { AGG: 'MASTER_FUND_A', ACCT: 'AGG_FIXED_INCOME', DTOVER__1: '201506 999912'},
-      ]
-      for (const agg of aggregations) {
-        const params = [agg.AGG, agg.ACCT]
-        let dtoverValues = []
-        for(let i=1; i<=20; ++i) {
-          dtoverValues.push(agg[`DTOVER__${i}`] || null)
-        }
-        params.push(...dtoverValues)
-        const valuePlaceholders = dtoverValues.map(() => '?').join(', ')
-
-        await runStatement(
-
-                    `INSERT INTO FRPAGG (AGG, ACCT, ${Array.from({length: 20}, (_, i) => `DTOVER__${i+1}`).join(', ')}) VALUES (?, ?, ${valuePlaceholders})`,
-                    params)
-      }
+      const csvPath = path.join(dataDir, 'frpagg.csv')
+      await runStatement(`COPY FRPAGG FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPAGG table seeded.')
     } else {
       console.log('FRPAGG data already exists or an error occurred.')
