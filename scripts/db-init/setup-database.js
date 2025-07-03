@@ -1,5 +1,5 @@
 
-import duckdb from "duckdb"
+import duckdb from "@duckdb/node-api"
 
 import path from 'path'
 import { fileURLToPath } from 'url'
