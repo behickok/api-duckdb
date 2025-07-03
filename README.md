@@ -18,18 +18,24 @@ bun start
 
 ## Database Setup
 
-The application now uses an in-memory DuckDB instance. On startup the database
+Use the migration script to create persistent databases:
 
-is seeded with a small set of demo tables. Sample rows for tables such as
-`sales`, `FRPAIR`, `FRPSEC`, `FRPHOLD`, `FRPTRAN`, `FRPSECTR`, `FRPPRICE`,
-`FRPCTG`, `FRPSI1`, and `FRPAGG` are stored in CSV files under
-`scripts/db-init/data`. These CSV files are loaded using DuckDB's `COPY`
-command during initialization.
+```bash
+# Example: create data/key.duckdb
+DUCKDB_PATH=data/key.duckdb bun scripts/db-init/setup-database.js
+```
 
+You can create tables on demand by sending a `POST` request to `/init` with a
+JSON body specifying the database file and table name:
 
-This project uses the `@duckdb/node-api` package, which provides prebuilt
-binaries for recent Node versions (including Node 24). You no longer need a
-Python toolchain unless you want to compile DuckDB from source.
+```json
+{ "database": "data/key.duckdb", "table": "FRPAIR" }
+```
+The server runs the setup script for the requested table only.
+
+Requests with API keys `secret123-key` or `secret123-stis` will execute against
+`data/key.duckdb` and `data/stis.duckdb` respectively.
+Connections to these databases are opened on demand for each request.
 
 ## API Endpoints
 
@@ -37,7 +43,8 @@ Python toolchain unless you want to compile DuckDB from source.
 - GET /sales: List all sales transactions
 - GET /sales/daily: Get daily sales data
 - GET /sales/summary: Get sales summary by category
-- POST /query: Execute a custom SQL query against the in-memory database
+- POST /query: Execute a custom SQL query (requires API key)
+- POST /init: Initialize a single table by database and table name
 
 ## Deploy
 

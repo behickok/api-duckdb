@@ -39,78 +39,17 @@ export function initializeDatabase(db: Database): void {
   const frpholdCsv = path.join(dataDir, 'frphold.csv');
   const frptranCsv = path.join(dataDir, 'frptran.csv');
 
-
-  // --- frpair --------------------------------------------------------
-  await sql(`
-    CREATE TABLE IF NOT EXISTS frpair(
-      acct      VARCHAR(14),
-      name      VARCHAR(50),
-      fye       INTEGER,
-      icpdated  DATE,
-      active    VARCHAR(20)
-    )`);
-
-  await sql(`COPY frpair FROM '${path.join(dataDir, 'frpair.csv')}' (HEADER true)`);
-
-  // --- frpsec --------------------------------------------------------
-  await sql(`
-    CREATE TABLE IF NOT EXISTS frpsec(
-      id       VARCHAR(255),
-      nametkr  VARCHAR(255),
-      ticker   VARCHAR(50),
-      cusip    VARCHAR(9)
-    )`);
-
-
-  await sql(`COPY frpsec FROM '${path.join(dataDir, 'frpsec.csv')}' (HEADER true)`);
-
-  // --- frphold seed rows --------------------------------------------
-  await sql(`
-    CREATE TABLE IF NOT EXISTS frphold(
-      aacct       VARCHAR(14),
-      hid         VARCHAR(255),
-      adate       VARCHAR(6),
-      hdirect1    VARCHAR(255),
-      hunits      DOUBLE,
-      hprincipal  DOUBLE,
-      haccrual    DOUBLE,
-      PRIMARY KEY(aacct, hid, adate)
-    )`);
-
-  await sql(`
-    INSERT INTO frphold
+    -- Insert sample data only if the table is empty
+    INSERT INTO sales (id, date, product, category, quantity, unit_price, total_price)
     SELECT * FROM (VALUES
-      ('ACC1001','SEC001','202401','Equity',100,15000,0.0),
-      ('ACC1002','SEC002','202401','Equity',200,25000,0.0)
-    ) AS v(aacct,hid,adate,hdirect1,hunits,hprincipal,haccrual)
-    WHERE NOT EXISTS (SELECT 1 FROM frphold)`);
-
-  // --- frptran seed rows --------------------------------------------
-  await sql(`
-    CREATE TABLE IF NOT EXISTS frptran(
-      aacct       VARCHAR(14),
-      hid         VARCHAR(255),
-      adate       VARCHAR(6),
-      tdate       DATE,
-      tcode       VARCHAR(255),
-      tunits      DOUBLE,
-      tprincipal  DOUBLE,
-      tincome     DOUBLE,
-      fee         DOUBLE,
-      PRIMARY KEY(aacct, hid, tdate, tcode)
-    )`);
-
-  await sql(`
-    INSERT INTO frptran
-    SELECT * FROM (VALUES
-      ('ACC1001','SEC001','202401','2024-01-15','BUY',50, 7500,0,10.0),
-      ('ACC1002','SEC002','202401','2024-01-20','BUY',75,18750,0,15.0)
-    ) AS v(aacct,hid,adate,tdate,tcode,tunits,tprincipal,tincome,fee)
-    WHERE NOT EXISTS (SELECT 1 FROM frptran)`);
-
-  await sql('COMMIT');                                              // end transaction
-  return db;
-
+      (1, '2024-01-01', 'Laptop', 'Electronics', 5, 999.99, 4999.95),
+      (2, '2024-01-02', 'Smartphone', 'Electronics', 10, 599.99, 5999.90),
+      (3, '2024-01-03', 'T-shirt', 'Clothing', 20, 19.99, 399.80),
+      (4, '2024-01-04', 'Book', 'Books', 15, 14.99, 224.85),
+      (5, '2024-01-05', 'Headphones', 'Electronics', 8, 79.99, 639.92)
+    ) AS new_data
+    WHERE NOT EXISTS (SELECT 1 FROM sales);
+  `)
 }
 
 // Pre-written queries you can feed straight to `connection.run()` or
