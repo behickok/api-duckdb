@@ -35,6 +35,7 @@ The server runs the setup script for the requested table only.
 
 Requests with API keys `secret123-key` or `secret123-stis` will execute against
 `data/key.duckdb` and `data/stis.duckdb` respectively.
+Connections to these databases are opened on demand for each request.
 
 ## API Endpoints
 

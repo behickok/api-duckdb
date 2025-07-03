@@ -29,7 +29,8 @@ interface DailySales {
   daily_revenue: number
 }
 
-export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultDb: Database): void {
+// dbMap maps API keys to database file paths
+export function setupRoutes(app: Hono, dbMap: Record<string, string>, defaultDb: Database): void {
   app.get('/', (c) => c.text('DuckDB Analytics API'))
 
   const __filename = fileURLToPath(import.meta.url)
@@ -40,7 +41,6 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
     new Promise<void>((resolve, reject) => {
       const child = spawn('bun', [setupScript], {
         env: { ...process.env, DUCKDB_PATH: dbPath, TABLE: table },
-
         stdio: 'inherit',
       })
       child.on('error', reject)
@@ -80,6 +80,7 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
 
   app.post('/init', async (c) => {
     let body: { database?: string; table?: string }
+
     try {
       body = await c.req.json()
     } catch {
@@ -93,6 +94,7 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
     }
 
     try {
+
       await runInit(dbPath, table)
       return c.json({ status: 'initialized', database: dbPath, table })
     } catch (err) {
@@ -102,8 +104,8 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
 
   app.post('/query', async (c) => {
     const key = c.req.header('x-api-key')
-    const db = key ? dbMap[key] : undefined
-    if (!db) {
+    const dbPath = key ? dbMap[key] : undefined
+    if (!dbPath) {
       return c.json({ error: 'Unauthorized' }, 401)
     }
 
@@ -118,11 +120,14 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
       return c.json({ error: 'Query is required' }, 400)
     }
 
+    const dbConn = new Database(dbPath)
     try {
-      const rows = await executeQuery<any>(db, body.query)
+      const rows = await executeQuery<any>(dbConn, body.query)
       return sendJsonResponse(c, rows)
     } catch (err) {
       return c.json({ error: String(err) }, 400)
+    } finally {
+      dbConn.close(() => {})
     }
   })
 }

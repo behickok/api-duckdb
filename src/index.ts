@@ -8,9 +8,10 @@ const app = new Hono()
 const memoryDb = new duckdb.Database(':memory:')
 initializeDatabase(memoryDb)
 
-const dbMap: Record<string, duckdb.Database> = {
-  'secret123-key': new duckdb.Database('data/key.duckdb'),
-  'secret123-stis': new duckdb.Database('data/stis.duckdb'),
+// Map API keys to database file paths. Connections are opened on demand
+const dbMap: Record<string, string> = {
+  'secret123-key': 'data/key.duckdb',
+  'secret123-stis': 'data/stis.duckdb',
 }
 
 setupRoutes(app, dbMap, memoryDb)
