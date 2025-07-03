@@ -1,16 +1,9 @@
-<<<<<<< HEAD
-import { Hono, type Context } from 'hono'
 
-import type { Database } from '@duckdb/node-api'
-
-import { QUERIES } from './db'
-
-=======
 // routes.ts -----------------------------------------------------------
 import { Hono, type Context } from 'hono';
 import { DuckDBConnection } from '@duckdb/node-api';      // ✅ Neo connection
 import { QUERIES } from './db';
->>>>>>> 723ef31 (Maybe fixing?)
+
 
 /* ------------------------------------------------------------------ *
  * Domain models (unchanged)

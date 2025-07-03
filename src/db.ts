@@ -3,13 +3,9 @@ import { DuckDBConnection } from '@duckdb/node-api';               // ✅ high-l
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-<<<<<<< HEAD
-import type { Database } from '@duckdb/node-api'
-=======
 const __filename  = fileURLToPath(import.meta.url);
 const __dirname   = path.dirname(__filename);
 const dataDir     = path.resolve(__dirname, '../scripts/db-init/data');
->>>>>>> 723ef31 (Maybe fixing?)
 
 /** Initialise tables and seed starter rows.
  *  If you already have an open connection you can pass it in, otherwise
@@ -36,7 +32,6 @@ export async function initializeDatabase(
       total_price DECIMAL(10,2)
     )`);
 
-<<<<<<< HEAD
 export function initializeDatabase(db: Database): void {
   const salesCsv = path.join(dataDir, 'sales.csv');
   const frpairCsv = path.join(dataDir, 'frpair.csv');
@@ -44,9 +39,6 @@ export function initializeDatabase(db: Database): void {
   const frpholdCsv = path.join(dataDir, 'frphold.csv');
   const frptranCsv = path.join(dataDir, 'frptran.csv');
 
-=======
-  await sql(`COPY sales FROM '${path.join(dataDir, 'sales.csv')}' (HEADER true)`);
->>>>>>> 723ef31 (Maybe fixing?)
 
   // --- frpair --------------------------------------------------------
   await sql(`
@@ -69,34 +61,7 @@ export function initializeDatabase(db: Database): void {
       cusip    VARCHAR(9)
     )`);
 
-<<<<<<< HEAD
-      CREATE TABLE IF NOT EXISTS FRPHOLD (
-        AACCT VARCHAR(14),
-        HID VARCHAR(255),
-        ADATE VARCHAR(6),
-        HDIRECT1 VARCHAR(255),
-        HUNITS DOUBLE,
-        HPRINCIPAL DOUBLE,
-        HACCRUAL DOUBLE,
-        PRIMARY KEY (AACCT, HID, ADATE)
-      );
-      COPY FRPHOLD FROM '${frpholdCsv}' (HEADER TRUE);
 
-      CREATE TABLE IF NOT EXISTS FRPTRAN (
-        AACCT VARCHAR(14),
-        HID VARCHAR(255),
-        ADATE VARCHAR(6),
-        TDATE DATE,
-        TCODE VARCHAR(255),
-        TUNITS DOUBLE,
-        TPRINCIPAL DOUBLE,
-        TINCOME DOUBLE,
-        FEE DOUBLE,
-        PRIMARY KEY (AACCT, HID, TDATE, TCODE)
-      );
-      COPY FRPTRAN FROM '${frptranCsv}' (HEADER TRUE);
-  `)
-=======
   await sql(`COPY frpsec FROM '${path.join(dataDir, 'frpsec.csv')}' (HEADER true)`);
 
   // --- frphold seed rows --------------------------------------------
@@ -145,7 +110,7 @@ export function initializeDatabase(db: Database): void {
 
   await sql('COMMIT');                                              // end transaction
   return db;
->>>>>>> 723ef31 (Maybe fixing?)
+
 }
 
 // Pre-written queries you can feed straight to `connection.run()` or
