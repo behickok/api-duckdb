@@ -22,7 +22,7 @@ Use the migration script to create persistent databases:
 
 ```bash
 # Example: create data/key.duckdb
-DUCKDB_PATH=data/key.duckdb node scripts/db-init/setup-database.js
+DUCKDB_PATH=data/key.duckdb bun scripts/db-init/setup-database.js
 ```
 
 You can initialize both `key` and `stis` databases at runtime by sending a
