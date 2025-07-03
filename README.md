@@ -22,15 +22,20 @@ Use the migration script to create persistent databases:
 
 ```bash
 # Example: create data/key.duckdb
-DUCKDB_PATH=data/key.duckdb node scripts/db-init/setup-database.js
+DUCKDB_PATH=data/key.duckdb bun scripts/db-init/setup-database.js
 ```
 
-You can initialize both `key` and `stis` databases at runtime by sending a
-`POST` request to `/init`. The server will run the same setup script for both
-databases.
+You can create tables on demand by sending a `POST` request to `/init` with a
+JSON body specifying the database file and table name:
+
+```json
+{ "database": "data/key.duckdb", "table": "FRPAIR" }
+```
+The server runs the setup script for the requested table only.
 
 Requests with API keys `secret123-key` or `secret123-stis` will execute against
 `data/key.duckdb` and `data/stis.duckdb` respectively.
+Connections to these databases are opened on demand for each request.
 
 ## API Endpoints
 
@@ -39,7 +44,7 @@ Requests with API keys `secret123-key` or `secret123-stis` will execute against
 - GET /sales/daily: Get daily sales data
 - GET /sales/summary: Get sales summary by category
 - POST /query: Execute a custom SQL query (requires API key)
-- POST /init: Run database initialization scripts
+- POST /init: Initialize a single table by database and table name
 
 ## Deploy
 
