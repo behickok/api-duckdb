@@ -80,6 +80,7 @@ export function setupRoutes(app: Hono, dbMap: Record<string, string>, defaultDb:
 
   app.post('/init', async (c) => {
     let body: { database?: string; table?: string }
+
     try {
       body = await c.req.json()
     } catch {
@@ -93,6 +94,7 @@ export function setupRoutes(app: Hono, dbMap: Record<string, string>, defaultDb:
     }
 
     try {
+
       await runInit(dbPath, table)
       return c.json({ status: 'initialized', database: dbPath, table })
     } catch (err) {
