@@ -1,6 +1,5 @@
 
-
-import { Database } from "@duckdb/node-api"
+import duckdb from "@duckdb/node-api"
 
 
 import path from 'path'
@@ -22,7 +21,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 
-const db = new Database(dbPath)
+const db = new duckdb.Database(dbPath)
 
 const dataDir = path.resolve(__dirname, 'data')
 

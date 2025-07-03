@@ -1,11 +1,13 @@
 import { Hono } from 'hono'
-import { Database } from '@duckdb/node-api'
+import duckdb from '@duckdb/node-api'
+import type { Database } from '@duckdb/node-api'
 
 import { initializeDatabase } from './db'
 import { setupRoutes } from './routes'
 
 const app = new Hono()
-const db = new Database(':memory:')
+const db: Database = new duckdb.Database(':memory:')
+
 
 initializeDatabase(db)
 setupRoutes(app, db)
