@@ -1,4 +1,4 @@
-import { Database } from '@duckdb/node-api'
+import { Database } from 'duckdb'
 
 export function initializeDatabase(db: Database): void {
   db.exec(`

@@ -1,5 +1,5 @@
 import { Hono, type Context } from 'hono'
-import { Database } from '@duckdb/node-api'
+import { Database } from 'duckdb'
 import { QUERIES } from './db'
 
 
