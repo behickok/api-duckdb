@@ -1,0 +1,6 @@
+id,date,product,category,quantity,unit_price,total_price
+1,2024-01-01,Laptop,Electronics,5,999.99,4999.95
+2,2024-01-02,Smartphone,Electronics,10,599.99,5999.90
+3,2024-01-03,T-shirt,Clothing,20,19.99,399.80
+4,2024-01-04,Book,Books,15,14.99,224.85
+5,2024-01-05,Headphones,Electronics,8,79.99,639.92
