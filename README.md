@@ -24,9 +24,11 @@ is seeded with a small set of demo tables. The sample rows for tables such as
 files under `scripts/db-init/data`. These CSV files are loaded using DuckDB's
 `COPY` command during initialization.
 
-Building the `duckdb` package from source requires a working Python
-environment. If prebuilt binaries are unavailable, make sure `python3` and basic
-build tools are installed before running `bun install`.
+
+This project uses the `@duckdb/node-api` package, which provides prebuilt
+binaries for recent Node versions (including Node 24). You no longer need a
+Python toolchain unless you want to compile DuckDB from source.
+
 
 ## API Endpoints
 
