@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import * as duckdb from '@duckdb/node-api'
+import * as duckdb from 'duckdb'
 import { initializeDatabase } from './db'
 import { setupRoutes } from './routes'
 
