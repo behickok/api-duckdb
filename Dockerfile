@@ -1,9 +1,10 @@
 # Use a Node.js version that matches your package.json 'engines' field
 FROM node:20-bullseye-slim
 
-# Install system dependencies, including curl, before they are needed
+# Install system dependencies, including curl and unzip, before they are needed
 RUN apt-get update && apt-get install -y \
     curl \
+    unzip \
     libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
