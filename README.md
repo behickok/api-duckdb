@@ -25,13 +25,12 @@ Use the migration script to create persistent databases:
 DUCKDB_PATH=data/key.duckdb node scripts/db-init/setup-database.js
 ```
 
-You can also run `bun run build` to create both `key` and `stis` databases.
+You can initialize both `key` and `stis` databases at runtime by sending a
+`POST` request to `/init`. The server will run the same setup script for both
+databases.
 
 Requests with API keys `secret123-key` or `secret123-stis` will execute against
 `data/key.duckdb` and `data/stis.duckdb` respectively.
-
-During Docker builds the script runs automatically via `bun run build` to
-populate both databases.
 
 ## API Endpoints
 
@@ -40,6 +39,7 @@ populate both databases.
 - GET /sales/daily: Get daily sales data
 - GET /sales/summary: Get sales summary by category
 - POST /query: Execute a custom SQL query (requires API key)
+- POST /init: Run database initialization scripts
 
 ## Deploy
 
