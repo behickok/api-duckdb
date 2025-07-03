@@ -25,9 +25,10 @@ bun start
 ## Database Setup
 
 The application now uses an in-memory DuckDB instance. On startup the database
-is seeded with a small set of demo tables including `sales`, `FRPAIR`,
-`FRPHOLD` and related reference tables. No external setup scripts or API keys
-are required.
+is seeded by loading CSV files located in the `data/` directory. Tables such as
+`sales`, `FRPAIR`, `FRPHOLD`, `FRPTRAN` and `FRPSEC` are created using
+`CREATE TABLE AS SELECT` with DuckDB's `read_csv_auto` function. No external
+setup scripts or API keys are required.
 
 ## API Endpoints
 
