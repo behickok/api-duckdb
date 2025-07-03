@@ -38,7 +38,7 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
 
   const runInit = (dbPath: string) =>
     new Promise<void>((resolve, reject) => {
-      const child = spawn('node', [setupScript], {
+      const child = spawn('bun', [setupScript], {
         env: { ...process.env, DUCKDB_PATH: dbPath },
         stdio: 'inherit',
       })
