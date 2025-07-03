@@ -1,5 +1,7 @@
 
+
 import { Database } from "@duckdb/node-api"
+
 
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -19,7 +21,9 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true })
 }
 
+
 const db = new Database(dbPath)
+
 const dataDir = path.resolve(__dirname, 'data')
 
 const onlyTable = process.env.TABLE ? process.env.TABLE.toLowerCase() : null

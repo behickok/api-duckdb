@@ -1,4 +1,6 @@
+
 import { Database } from '@duckdb/node-api'
+
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -6,12 +8,14 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const dataDir = path.resolve(__dirname, '../scripts/db-init/data')
 
+
 export function initializeDatabase(db: Database): void {
   const salesCsv = path.join(dataDir, 'sales.csv');
   const frpairCsv = path.join(dataDir, 'frpair.csv');
   const frpsecCsv = path.join(dataDir, 'frpsec.csv');
   const frpholdCsv = path.join(dataDir, 'frphold.csv');
   const frptranCsv = path.join(dataDir, 'frptran.csv');
+
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS sales (
