@@ -2,6 +2,8 @@
 
 This is a sample analytical API built with Hono and DuckDB.
 
+This project requires **Node.js 18 LTS** in order to use the DuckDB Node API.
+
 ## Installation
 
 To install dependencies:
