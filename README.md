@@ -19,9 +19,14 @@ bun start
 ## Database Setup
 
 The application now uses an in-memory DuckDB instance. On startup the database
-is seeded with a small set of demo tables including `sales`, `FRPAIR`,
-`FRPHOLD` and related reference tables. No external setup scripts or API keys
-are required.
+is seeded with a small set of demo tables. The sample rows for tables such as
+`sales`, `FRPAIR`, `FRPSEC`, `FRPCTG`, `FRPSI1`, and `FRPAGG` are stored in CSV
+files under `scripts/db-init/data`. These CSV files are loaded using DuckDB's
+`COPY` command during initialization.
+
+Building the `duckdb` package from source requires a working Python
+environment. If prebuilt binaries are unavailable, make sure `python3` and basic
+build tools are installed before running `bun install`.
 
 ## API Endpoints
 
