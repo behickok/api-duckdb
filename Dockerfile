@@ -1,36 +1,34 @@
-# Use Node 18 as the base image for compatibility with DuckDB
-FROM node:18-bullseye-slim
+# Use a Node.js version that matches your package.json 'engines' field
+FROM node:20-bullseye-slim
 
-# Install Bun
+# Install system dependencies, including curl, before they are needed
+RUN apt-get update && apt-get install -y \
+    curl \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install bun using the now-available curl command
 RUN curl -fsSL https://bun.sh/install | bash \
     && mv /root/.bun /usr/local/bun \
     && ln -s /usr/local/bun/bin/bun /usr/local/bin/bun
 
-# Install necessary system libraries
-RUN apt-get update && apt-get install -y \
-    libstdc++6 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
+# Set the working directory for the rest of the commands
 WORKDIR /app
 
-# Copy package.json and bun.lockb (if you have one)
+# Copy package management files first to leverage Docker layer caching
 COPY package.json bun.lockb* ./
 
-# Install dependencies
-RUN bun install
+# Install dependencies using bun. --frozen-lockfile is best practice for CI/deployments.
+RUN bun install --frozen-lockfile
 
-# Copy the rest of your application
+# Copy the rest of your application code into the container
 COPY . .
 
-# Run database setup scripts for key and stis
+# Run the build script defined in your package.json
 RUN bun run build
 
-# Set environment variable
-ENV NODE_ENV=production
-
-# Start the application
-CMD ["bun", "run", "src/index.ts"]
-
-# Expose the port
+# Expose the port your application will run on (Hono's default is 3000)
 EXPOSE 3000
+
+# Define the command to start your application
+CMD ["bun", "run", "start"]
