@@ -23,20 +23,24 @@ const db = new duckdb.Database(dbPath)
 
 function runStatement(sql, params = []) {
   return new Promise((resolve, reject) => {
-    db.run(sql, params, err => {
-      if (err) reject(err); else resolve();
-    });
+    if (params.length) {
+      // Use the spread operator (...) to pass parameters individually
+      db.run(sql, ...params, err => (err ? reject(err) : resolve()));
+    } else {
+      db.run(sql, err => (err ? reject(err) : resolve()));
+    }
   });
 }
-
 function runQuery(sql, params = []) {
   return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err); else resolve(rows);
-    });
+    if (params.length) {
+      // Also use the spread operator here
+      db.all(sql, ...params, (err, rows) => (err ? reject(err) : resolve(rows)));
+    } else {
+      db.all(sql, (err, rows) => (err ? reject(err) : resolve(rows)));
+    }
   });
 }
-
 
 async function main() {
 
@@ -82,9 +86,9 @@ async function main() {
         `)
     console.log("'agentic_workflows' table schema ensured.")
 
-    const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*) FROM agentic_workflows')
+    const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM agentic_workflows')
 
-    if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && Number(agenticWorkflowsCountResult[0][0]) === 0) {
+    if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && agenticWorkflowsCountResult[0].cnt === 0) {
       const workflowsToSeed = [
         {
           id: 'wf_anomalies_perf',
@@ -277,15 +281,15 @@ async function main() {
     console.log("'FRPAGG' table schema ensured.")
 
 
-    const reportsCountResult = await runQuery( 'SELECT COUNT(*) FROM report_configurations')
-    if (reportsCountResult && reportsCountResult.length > 0 && Number(reportsCountResult[0][0]) > 0) {
+    const reportsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM report_configurations')
+    if (reportsCountResult && reportsCountResult.length > 0 && Number(reportsCountResult[0].cnt) > 0) {
       await runStatement( 'DELETE FROM report_configurations')
       console.log('Cleared existing report configurations.')
     }
 
-    const freshReportsCountResult = await runQuery( 'SELECT COUNT(*) FROM report_configurations')
+    const freshReportsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM report_configurations')
 
-    if (freshReportsCountResult && freshReportsCountResult.length > 0 && Number(freshReportsCountResult[0][0]) === 0) {
+    if (freshReportsCountResult && freshReportsCountResult.length > 0 && Number(freshReportsCountResult[0].cnt) === 0) {
       const newReports = [
         {
           id: 1,
@@ -431,8 +435,8 @@ async function main() {
     }
 
 
-    const frpairCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAIR')
-    if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0][0]) === 0) {
+    const frpairCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAIR')
+    if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0].cnt) === 0) {
       const accounts = [
         { ACCT: 'ACC1001', NAME: 'Global Equity Fund', FYE: 1231, ICPDATED: formatDate(new Date(2010, 0, 15)), ACTIVE: 'Open' },
         { ACCT: 'ACC1002', NAME: 'Fixed Income Trust', FYE: 1231, ICPDATED: formatDate(new Date(2015, 5, 20)), ACTIVE: 'Open' },
@@ -451,8 +455,8 @@ async function main() {
     }
 
 
-    const frpsecCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSEC')
-    if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0][0]) === 0) {
+    const frpsecCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSEC')
+    if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0].cnt) === 0) {
       const securities = [
         { ID: 'SEC001', NAMETKR: 'Apple Inc.', TICKER: 'AAPL', CUSIP: '037833100' },
         { ID: 'SEC002', NAMETKR: 'Microsoft Corp.', TICKER: 'MSFT', CUSIP: '594918104' },
@@ -472,8 +476,8 @@ async function main() {
 
     const basePrices = { 'SEC001': 150, 'SEC002': 250, 'SEC003': 102, 'SEC004': 200, 'SEC005': 1800 }
 
-    const frppriceCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPPRICE')
-    if (frppriceCountResult && frppriceCountResult.length > 0 && Number(frppriceCountResult[0][0]) === 0) {
+    const frppriceCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPPRICE')
+    if (frppriceCountResult && frppriceCountResult.length > 0 && Number(frppriceCountResult[0].cnt) === 0) {
       const prices = []
       const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
       const startDate = new Date(2022, 0, 1)
@@ -496,8 +500,8 @@ async function main() {
     }
 
 
-    const frpholdCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPHOLD')
-    if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0][0]) === 0) {
+    const frpholdCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPHOLD')
+    if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0].cnt) === 0) {
       const holdings = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
       const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
@@ -530,8 +534,8 @@ async function main() {
       console.log('FRPHOLD data already exists or an error occurred.')
     }
 
-    const frptranCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPTRAN')
-    if (frptranCountResult && frptranCountResult.length > 0 && Number(frptranCountResult[0][0]) === 0) {
+    const frptranCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPTRAN')
+    if (frptranCountResult && frptranCountResult.length > 0 && Number(frptranCountResult[0].cnt) === 0) {
       const transactions = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
       const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004']
@@ -573,8 +577,8 @@ async function main() {
       console.log('FRPTRAN data already exists or an error occurred.')
     }
 
-    const frpsectorCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSECTR')
-    if (frpsectorCountResult && frpsectorCountResult.length > 0 && Number(frpsectorCountResult[0][0]) === 0) {
+    const frpsectorCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSECTR')
+    if (frpsectorCountResult && frpsectorCountResult.length > 0 && Number(frpsectorCountResult[0].cnt) === 0) {
       const performanceData = []
       const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
       const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
@@ -617,8 +621,8 @@ async function main() {
       console.log('FRPSECTR data already exists or an error occurred.')
     }
 
-    const frpctgCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPCTG')
-    if (frpctgCountResult && frpctgCountResult.length > 0 && Number(frpctgCountResult[0][0]) === 0) {
+    const frpctgCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPCTG')
+    if (frpctgCountResult && frpctgCountResult.length > 0 && Number(frpctgCountResult[0].cnt) === 0) {
       const classifications = [
         { SECTOR: 'US_EQUITY_LARGE', CATEGORY: 'US_EQUITY' },
         { SECTOR: 'US_EQUITY_SMALL', CATEGORY: 'US_EQUITY' },
@@ -643,9 +647,9 @@ async function main() {
       console.log('FRPCTG data already exists or an error occurred.')
     }
 
-    const frpsi1CountResult = await runQuery( 'SELECT COUNT(*) FROM FRPSI1')
+    const frpsi1CountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSI1')
 
-    if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0][0]) === 0) {
+    if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0].cnt) === 0) {
       const descriptions = [
         { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_LARGE', SORINAME: 'US Large Cap Equity' },
         { SIFLAG: 'SECTOR', SORI: 'US_EQUITY_SMALL', SORINAME: 'US Small Cap Equity' },
@@ -674,9 +678,9 @@ async function main() {
     }
 
 
-    const frpaggCountResult = await runQuery( 'SELECT COUNT(*) FROM FRPAGG')
+    const frpaggCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAGG')
 
-    if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0][0]) === 0) {
+    if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0].cnt) === 0) {
       const aggregations = [
         { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1001', DTOVER__1: '201001 999912' },
         { AGG: 'AGG_TOTAL_EQUITY', ACCT: 'ACC1003', DTOVER__1: '201809 999912' },
@@ -708,32 +712,38 @@ async function main() {
 
     console.log('\n--- Verifying Table Counts ---')
 
-    const tablesToVerify = ['FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1', 'FRPSEC', 'FRPPRICE', 'FRPAGG', 'report_configurations', 'agentic_workflows']
-    for (const tableName of tablesToVerify) {
-      try {
-        const result = await runQuery( `SELECT COUNT(*) FROM ${tableName}`)
+  
+const tablesToVerify = [
+  'FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1',
+  'FRPSEC', 'FRPPRICE', 'FRPAGG', 'report_configurations', 'agentic_workflows'
+];
 
-        if (result && result.length > 0 && result[0] && typeof result[0][0] === 'bigint') {
-          console.log(`Count for ${tableName}: ${result[0][0]}`)
-        } else {
-          console.log(`Could not retrieve valid count for ${tableName}. Result:`, result)
-        }
-      } catch (e) {
-        console.error(`Error counting ${tableName}:`, e.message)
-      }
-    }
-    console.log('--- Verification Counts End ---')
+for (const tableName of tablesToVerify) {
+  try {
+    // cnt comes back as a normal JS number
+    const [{ cnt }] = await runQuery(
+      `SELECT COUNT(*)::INTEGER AS cnt FROM ${tableName}`
+    );
+    console.log(`Count for ${tableName}: ${cnt}`);
+  } catch (e) {
+    console.error(`Error counting ${tableName}:`, e.message);
+  }
+}
 
   } catch (err) {
     console.error("Error during database initialization:", err);
     process.exitCode = 1;
   } finally {
     db.close(err => {
-      if (err) console.error("Error closing database", err);
-      else console.log("Database connection closed.");
+        if (err) {
+            console.error("Error closing database", err);
+            process.exit(1); // Exit with a failure code
+        } else {
+            console.log("Database connection closed. All data should be saved.");
+            // Now that the DB is closed, it's safe to exit.
+            process.exit(process.exitCode || 0);
+        }
     });
-    process.exit(process.exitCode || 0);
-
   }
 }
 
