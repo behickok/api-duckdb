@@ -1,0 +1,16 @@
+SIFLAG,SORI,SORINAME
+SECTOR,US_EQUITY_LARGE,US Large Cap Equity
+SECTOR,US_EQUITY_SMALL,US Small Cap Equity
+SECTOR,INTL_EQUITY_DEV,International Developed Equity
+SECTOR,FIXED_INCOME_CORP,Corporate Fixed Income
+SECTOR,FIXED_INCOME_GOVT,Government Fixed Income
+SECTOR,REAL_ESTATE,Real Estate Holdings
+SECTOR,COMMODITIES,Commodities Direct
+CATEGORY,US_EQUITY,US Equity Composite
+CATEGORY,INTL_EQUITY,International Equity Composite
+CATEGORY,EQUITY,Total Equity
+CATEGORY,FIXED_INCOME,Total Fixed Income
+CATEGORY,ALTERNATIVES,Alternative Investments
+CATEGORY,TOTAL_FUND,Total Fund Composite
+INDEX,SP500,S&P 500 Index
+INDEX,AGG_BOND,Bloomberg Barclays Aggregate Bond Index
