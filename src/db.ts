@@ -13,6 +13,9 @@ export function initializeDatabase(db: Database): void {
   const salesCsv = path.join(dataDir, 'sales.csv');
   const frpairCsv = path.join(dataDir, 'frpair.csv');
   const frpsecCsv = path.join(dataDir, 'frpsec.csv');
+  const frpholdCsv = path.join(dataDir, 'frphold.csv');
+  const frptranCsv = path.join(dataDir, 'frptran.csv');
+
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS sales (
@@ -43,41 +46,31 @@ export function initializeDatabase(db: Database): void {
     );
     COPY FRPSEC FROM '${frpsecCsv}' (HEADER TRUE);
 
-    CREATE TABLE IF NOT EXISTS FRPHOLD (
-      AACCT VARCHAR(14),
-      HID VARCHAR(255),
-      ADATE VARCHAR(6),
-      HDIRECT1 VARCHAR(255),
-      HUNITS DOUBLE,
-      HPRINCIPAL DOUBLE,
-      HACCRUAL DOUBLE,
-      PRIMARY KEY (AACCT, HID, ADATE)
-    );
-    INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL)
-    SELECT * FROM (VALUES
-      ('ACC1001', 'SEC001', '202401', 'Equity', 100, 15000, 0.0),
-      ('ACC1002', 'SEC002', '202401', 'Equity', 200, 25000, 0.0)
-    ) AS new_data(AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL)
-    WHERE NOT EXISTS (SELECT 1 FROM FRPHOLD);
+      CREATE TABLE IF NOT EXISTS FRPHOLD (
+        AACCT VARCHAR(14),
+        HID VARCHAR(255),
+        ADATE VARCHAR(6),
+        HDIRECT1 VARCHAR(255),
+        HUNITS DOUBLE,
+        HPRINCIPAL DOUBLE,
+        HACCRUAL DOUBLE,
+        PRIMARY KEY (AACCT, HID, ADATE)
+      );
+      COPY FRPHOLD FROM '${frpholdCsv}' (HEADER TRUE);
 
-    CREATE TABLE IF NOT EXISTS FRPTRAN (
-      AACCT VARCHAR(14),
-      HID VARCHAR(255),
-      ADATE VARCHAR(6),
-      TDATE DATE,
-      TCODE VARCHAR(255),
-      TUNITS DOUBLE,
-      TPRINCIPAL DOUBLE,
-      TINCOME DOUBLE,
-      FEE DOUBLE,
-      PRIMARY KEY (AACCT, HID, TDATE, TCODE)
-    );
-    INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE)
-    SELECT * FROM (VALUES
-      ('ACC1001', 'SEC001', '202401', '2024-01-15', 'BUY', 50, 7500, 0, 10.0),
-      ('ACC1002', 'SEC002', '202401', '2024-01-20', 'BUY', 75, 18750, 0, 15.0)
-    ) AS new_data(AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE)
-    WHERE NOT EXISTS (SELECT 1 FROM FRPTRAN);
+      CREATE TABLE IF NOT EXISTS FRPTRAN (
+        AACCT VARCHAR(14),
+        HID VARCHAR(255),
+        ADATE VARCHAR(6),
+        TDATE DATE,
+        TCODE VARCHAR(255),
+        TUNITS DOUBLE,
+        TPRINCIPAL DOUBLE,
+        TINCOME DOUBLE,
+        FEE DOUBLE,
+        PRIMARY KEY (AACCT, HID, TDATE, TCODE)
+      );
+      COPY FRPTRAN FROM '${frptranCsv}' (HEADER TRUE);
   `)
 }
 

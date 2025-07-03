@@ -19,16 +19,17 @@ bun start
 ## Database Setup
 
 The application now uses an in-memory DuckDB instance. On startup the database
-is seeded with a small set of demo tables. The sample rows for tables such as
-`sales`, `FRPAIR`, `FRPSEC`, `FRPCTG`, `FRPSI1`, and `FRPAGG` are stored in CSV
-files under `scripts/db-init/data`. These CSV files are loaded using DuckDB's
-`COPY` command during initialization.
+
+is seeded with a small set of demo tables. Sample rows for tables such as
+`sales`, `FRPAIR`, `FRPSEC`, `FRPHOLD`, `FRPTRAN`, `FRPSECTR`, `FRPPRICE`,
+`FRPCTG`, `FRPSI1`, and `FRPAGG` are stored in CSV files under
+`scripts/db-init/data`. These CSV files are loaded using DuckDB's `COPY`
+command during initialization.
 
 
 This project uses the `@duckdb/node-api` package, which provides prebuilt
 binaries for recent Node versions (including Node 24). You no longer need a
 Python toolchain unless you want to compile DuckDB from source.
-
 
 ## API Endpoints
 

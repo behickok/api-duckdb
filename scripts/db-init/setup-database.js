@@ -1,5 +1,7 @@
 
-import duckdb from "@duckdb/node-api"
+
+import { Database } from "@duckdb/node-api"
+
 
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -19,8 +21,8 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true })
 }
 
-const db = new duckdb.Database(dbPath)
-const dataDir = path.resolve(__dirname, 'data')
+
+const db = new Database(dbPath)
 
 const dataDir = path.resolve(__dirname, 'data')
 
@@ -467,19 +469,6 @@ async function main() {
     }
     }
 
-    function randomDate(start, end) {
-      return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-    }
-
-    function formatDate(date) {
-      return date.toISOString().split('T')[0]
-    }
-
-    function formatADATE(date) {
-      const year = date.getFullYear()
-      const month = (date.getMonth() + 1).toString().padStart(2, '0')
-      return `${year}${month}`
-    }
 
 
     if (shouldRun('FRPAIR')) {
@@ -505,27 +494,11 @@ async function main() {
     }
     }
 
-    const basePrices = { 'SEC001': 150, 'SEC002': 250, 'SEC003': 102, 'SEC004': 200, 'SEC005': 1800 }
-
     if (shouldRun('FRPPRICE')) {
     const frppriceCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPPRICE')
     if (frppriceCountResult && frppriceCountResult.length > 0 && Number(frppriceCountResult[0].cnt) === 0) {
-      const prices = []
-      const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
-      const startDate = new Date(2022, 0, 1)
-
-      for (const secId of securityIds) {
-        for (let i = 0; i < 24; i++) {
-          const priceDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)
-          const price = basePrices[secId] * (1 + (Math.random() - 0.45) * 0.1)
-          prices.push({ ID: secId, SDATE: formatDate(priceDate), SPRICE: parseFloat(price.toFixed(2)) })
-        }
-      }
-      for (const price of prices) {
-
-        await runStatement( 'INSERT INTO FRPPRICE (ID, SDATE, SPRICE) VALUES (?, ?, ?)',
-                    [price.ID, price.SDATE, price.SPRICE])
-      }
+      const csvPath = path.join(dataDir, 'frpprice.csv')
+      await runStatement(`COPY FRPPRICE FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPPRICE table seeded.')
     } else {
       console.log('FRPPRICE data already exists or an error occurred.')
@@ -536,33 +509,8 @@ async function main() {
     if (shouldRun('FRPHOLD')) {
     const frpholdCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPHOLD')
     if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0].cnt) === 0) {
-      const holdings = []
-      const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
-      const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
-      const startDate = new Date(2023, 0, 1)
-
-      for (const accId of accountIds) {
-        for (const secId of securityIds.slice(0, Math.floor(Math.random() * 3) + 2)) {
-          for (let i = 0; i < 12; i++) {
-            const recordDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)
-            const adate = formatADATE(recordDate)
-            holdings.push({
-              AACCT: accId,
-              HID: secId,
-              ADATE: adate,
-              HDIRECT1: (Math.random() > 0.7) ? 'Equity' : 'Fixed Income',
-              HUNITS: parseFloat((Math.random() * 1000 + 50).toFixed(4)),
-              HPRINCIPAL: parseFloat((Math.random() * 100000 + 5000).toFixed(2)),
-              HACCRUAL: parseFloat((Math.random() * 100).toFixed(2))
-            })
-          }
-        }
-      }
-      for (const hold of holdings) {
-
-        await runStatement( 'INSERT INTO FRPHOLD (AACCT, HID, ADATE, HDIRECT1, HUNITS, HPRINCIPAL, HACCRUAL) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    [hold.AACCT, hold.HID, hold.ADATE, hold.HDIRECT1, hold.HUNITS, hold.HPRINCIPAL, hold.HACCRUAL])
-      }
+      const csvPath = path.join(dataDir, 'frphold.csv')
+      await runStatement(`COPY FRPHOLD FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPHOLD table seeded.')
     } else {
       console.log('FRPHOLD data already exists or an error occurred.')
@@ -572,42 +520,8 @@ async function main() {
     if (shouldRun('FRPTRAN')) {
     const frptranCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPTRAN')
     if (frptranCountResult && frptranCountResult.length > 0 && Number(frptranCountResult[0].cnt) === 0) {
-      const transactions = []
-      const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
-      const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004']
-      const transactionTypes = ['BUY', 'SELL', 'DIV', 'INT']
-      const startDate = new Date(2023, 0, 1)
-
-      for (const accId of accountIds) {
-        for (let i = 0; i < 20; i++) {
-          const tDate = randomDate(startDate, new Date(2023, 11, 31))
-          const aDate = formatADATE(tDate)
-          const secId = securityIds[Math.floor(Math.random() * securityIds.length)]
-          const tCode = transactionTypes[Math.floor(Math.random() * transactionTypes.length)]
-          let units = parseFloat((Math.random() * 200 + 10).toFixed(4))
-          let principal = parseFloat((units * (basePrices[secId] || 100) * (1 + (Math.random() - 0.5)*0.02)).toFixed(2))
-          let income = 0
-          let fee = parseFloat((principal * 0.001).toFixed(2))
-
-          if (tCode === 'SELL') units = -units
-          if (tCode === 'DIV' || tCode === 'INT') {
-            units = 0
-            income = parseFloat((principal * 0.02).toFixed(2))
-            principal = 0
-          }
-
-          transactions.push({
-            AACCT: accId, HID: secId, ADATE: aDate, TDATE: formatDate(tDate),
-            TCODE: tCode, TUNITS: units, TPRINCIPAL: principal, TINCOME: income, FEE: fee
-          })
-        }
-      }
-      for (const tran of transactions) {
-
-        await runStatement(
-                    'INSERT INTO FRPTRAN (AACCT, HID, ADATE, TDATE, TCODE, TUNITS, TPRINCIPAL, TINCOME, FEE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [tran.AACCT, tran.HID, tran.ADATE, tran.TDATE, tran.TCODE, tran.TUNITS, tran.TPRINCIPAL, tran.TINCOME, tran.FEE])
-      }
+      const csvPath = path.join(dataDir, 'frptran.csv')
+      await runStatement(`COPY FRPTRAN FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPTRAN table seeded.')
     } else {
       console.log('FRPTRAN data already exists or an error occurred.')
@@ -617,43 +531,8 @@ async function main() {
     if (shouldRun('FRPSECTR')) {
     const frpsectorCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSECTR')
     if (frpsectorCountResult && frpsectorCountResult.length > 0 && Number(frpsectorCountResult[0].cnt) === 0) {
-      const performanceData = []
-      const accountIds = ['ACC1001', 'ACC1002', 'ACC1003', 'ACC1005']
-      const securityIds = ['SEC001', 'SEC002', 'SEC003', 'SEC004', 'SEC005']
-      const sectors = ['US_EQUITY_LARGE', 'US_EQUITY_SMALL', 'INTL_EQUITY_DEV', 'FIXED_INCOME_CORP', 'FIXED_INCOME_GOVT', 'REAL_ESTATE', 'COMMODITIES']
-      const startDate = new Date(2023, 0, 1)
-
-      for (const accId of accountIds) {
-        for (const secId of securityIds.slice(0, Math.floor(Math.random() * 2)+1)) {
-          for (const sector of sectors.slice(0, Math.floor(Math.random() * 2) + 1)) {
-            for (let i = 0; i < 12; i++) {
-              const recordDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1)
-              const adate = formatADATE(recordDate)
-              const pmkt = parseFloat((Math.random() * 50000 + 10000).toFixed(2))
-              const pos = parseFloat((Math.random() * 5000).toFixed(2))
-              const neg = parseFloat((Math.random() * 3000).toFixed(2))
-              const inc = parseFloat((Math.random() * 500).toFixed(2))
-              const mkt = pmkt + pos - neg + inc + (pmkt * (Math.random() * 0.1 - 0.04))
-
-              performanceData.push({
-                ACCT: accId, HID: secId, ADATE: adate, SECTOR: sector,
-                UVR: parseFloat((Math.random() * 0.05 - 0.02).toFixed(4)),
-                MKT: parseFloat(mkt.toFixed(2)),
-                PMKT: pmkt,
-                POS: pos, NEG: neg,
-                PF: parseFloat(Math.random().toFixed(4)), NF: parseFloat(Math.random().toFixed(4)),
-                INC: inc
-              })
-            }
-          }
-        }
-      }
-      for (const perf of performanceData) {
-
-        await runStatement(
-                    'INSERT INTO FRPSECTR (ACCT, HID, ADATE, SECTOR, UVR, MKT, PMKT, POS, NEG, PF, NF, INC) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [perf.ACCT, perf.HID, perf.ADATE, perf.SECTOR, perf.UVR, perf.MKT, perf.PMKT, perf.POS, perf.NEG, perf.PF, perf.NF, perf.INC])
-      }
+      const csvPath = path.join(dataDir, 'frpsectr.csv')
+      await runStatement(`COPY FRPSECTR FROM '${csvPath}' (HEADER TRUE)`)
       console.log('FRPSECTR table seeded.')
     } else {
       console.log('FRPSECTR data already exists or an error occurred.')
