@@ -1,82 +1,72 @@
+<<<<<<< HEAD
 import { Hono, type Context } from 'hono'
 
 import type { Database } from '@duckdb/node-api'
 
 import { QUERIES } from './db'
 
+=======
+// routes.ts -----------------------------------------------------------
+import { Hono, type Context } from 'hono';
+import { DuckDBConnection } from '@duckdb/node-api';      // ✅ Neo connection
+import { QUERIES } from './db';
+>>>>>>> 723ef31 (Maybe fixing?)
 
+/* ------------------------------------------------------------------ *
+ * Domain models (unchanged)
+ * ------------------------------------------------------------------ */
 interface SalesRecord {
-  id: number
-  date: string
-  product: string
-  category: string
-  quantity: number
-  unit_price: number
-  total_price: number
+  id: number;
+  date: string;
+  product: string;
+  category: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
 }
 
 interface SalesSummary {
-  category: string
-  total_transactions: number
-  total_quantity: number
-  total_revenue: number
+  category: string;
+  total_transactions: number;
+  total_quantity: number;
+  total_revenue: number;
 }
 
 interface DailySales {
-  date: string
-  transactions: number
-  daily_revenue: number
+  date: string;
+  transactions: number;
+  daily_revenue: number;
 }
 
-export function setupRoutes(app: Hono, db: Database): void {
-  app.get('/', (c) => c.text('DuckDB Analytics API'))
+/* ------------------------------------------------------------------ *
+ * Route registration
+ * ------------------------------------------------------------------ */
+export function setupRoutes(app: Hono, db: DuckDBConnection): void {
+  app.get('/', c => c.text('DuckDB Analytics API'));
 
-  const executeQuery = async <T>(query: string): Promise<T[]> => {
-    return new Promise((resolve, reject) => {
-      db.all(query, (err: Error | null, rows: any[]) => {
-        if (err) reject(err)
-        else resolve(rows as T[])
-      })
-    })
-  }
+  // --- small helpers ------------------------------------------------
+  const executeQuery = async <T>(sql: string): Promise<T[]> => {
+    const reader = await db.runAndReadAll(sql);           // async Neo API:contentReference[oaicite:0]{index=0}
+    return reader.getRowObjects() as T[];
+  };
 
-  const sendJsonResponse = <T>(c: Context, data: T) => {
-    const jsonString = JSON.stringify(data, (_, value) => typeof value === 'bigint' ? value.toString() : value)
-    return c.json(JSON.parse(jsonString))
-  }
+  const send = <T>(c: Context, data: T) => c.json(data);
 
-  app.get('/sales', async (c) => {
-    const rows = await executeQuery<SalesRecord>(QUERIES.allSales)
-    return sendJsonResponse(c, rows)
-  })
+  // --- predefined reports ------------------------------------------
+  app.get('/sales',        async c => send(c, await executeQuery<SalesRecord>(QUERIES.allSales)));
+  app.get('/sales/summary',async c => send(c, await executeQuery<SalesSummary>(QUERIES.salesSummary)));
+  app.get('/sales/daily',  async c => send(c, await executeQuery<DailySales>(QUERIES.dailySales)));
 
-  app.get('/sales/summary', async (c) => {
-    const rows = await executeQuery<SalesSummary>(QUERIES.salesSummary)
-    return sendJsonResponse(c, rows)
-  })
+  // --- ad-hoc SQL endpoint -----------------------------------------
+  app.post('/query', async c => {
+    let body: { query?: string };
+    try       { body = await c.req.json(); }
+    catch     { return c.json({ error: 'Invalid JSON' }, 400); }
 
-  app.get('/sales/daily', async (c) => {
-    const rows = await executeQuery<DailySales>(QUERIES.dailySales)
-    return sendJsonResponse(c, rows)
-  })
+    const { query } = body;
+    if (!query) return c.json({ error: 'Query is required' }, 400);
 
-  app.post('/query', async (c) => {
-    let body: { query?: string }
-    try {
-      body = await c.req.json()
-    } catch {
-      return c.json({ error: 'Invalid JSON' }, 400)
-    }
-
-    if (!body.query) {
-      return c.json({ error: 'Query is required' }, 400)
-    }
-
-    try {
-      const rows = await executeQuery<any>(body.query)
-      return sendJsonResponse(c, rows)
-    } catch (err) {
-      return c.json({ error: String(err) }, 400)
-    }
-  })
+    try       { return send(c, await executeQuery<any>(query)); }
+    catch (e) { return c.json({ error: String(e) }, 400); }
+  });
 }
