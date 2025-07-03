@@ -1,0 +1,29 @@
+### Health check
+GET http://localhost:3000/ HTTP/1.1
+
+### Initialise the databases (run once)
+POST http://localhost:3000/init HTTP/1.1
+x-api-key: secret123-key
+Content-Type: application/json
+
+{
+  "database": "key",
+  "table":"frpair"
+}
+### All sales (default in-memory DB)
+GET http://localhost:3000/sales HTTP/1.1
+
+### Category summary
+GET http://localhost:3000/sales/summary HTTP/1.1
+
+### Daily roll-up
+GET http://localhost:3000/sales/daily HTTP/1.1
+
+### Ad-hoc query on key.duckdb
+POST http://localhost:3000/query HTTP/1.1
+x-api-key: secret123-key
+Content-Type: application/json
+
+{
+  "query": "from frpair"
+}
