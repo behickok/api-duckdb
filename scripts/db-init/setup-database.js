@@ -20,7 +20,8 @@ if (!fs.existsSync(dbDir)) {
 }
 
 const db = new duckdb.Database(dbPath)
-const dataDir = path.join(__dirname, 'data')
+
+const dataDir = path.resolve(__dirname, 'data')
 
 const onlyTable = process.env.TABLE ? process.env.TABLE.toLowerCase() : null
 const VALID_TABLES = [
