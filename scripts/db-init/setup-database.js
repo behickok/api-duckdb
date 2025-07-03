@@ -21,6 +21,26 @@ if (!fs.existsSync(dbDir)) {
 
 const db = new duckdb.Database(dbPath)
 
+const onlyTable = process.env.TABLE ? process.env.TABLE.toLowerCase() : null
+const VALID_TABLES = [
+  'report_configurations',
+  'agentic_workflows',
+  'frpair',
+  'frphold',
+  'frptran',
+  'frpsectr',
+  'frpctg',
+  'frpsi1',
+  'frpsec',
+  'frpprice',
+  'frpagg',
+]
+if (onlyTable && !VALID_TABLES.includes(onlyTable)) {
+  console.error(`Unknown table ${onlyTable}`)
+  process.exit(1)
+}
+const shouldRun = (name) => !onlyTable || onlyTable === name.toLowerCase()
+
 function runStatement(sql, params = []) {
   return new Promise((resolve, reject) => {
     if (params.length) {
@@ -53,42 +73,45 @@ async function main() {
     await runStatement( `DROP TABLE IF EXISTS sample_data;`)
     console.log("Old 'sample_data' table dropped if it existed.")
 
-    await runStatement( `
+    if (shouldRun('report_configurations')) {
+      await runStatement( `
 
-            CREATE TABLE IF NOT EXISTS report_configurations (
-                id INTEGER PRIMARY KEY DEFAULT nextval('report_configurations_id_seq'),
-                label VARCHAR(255) NOT NULL,
-                query_template TEXT NOT NULL,
-                column_definitions TEXT,
-                parameter_definitions TEXT,
-                crud_config TEXT,
-                ai_prompt_template TEXT
-            );
-        `)
-    console.log("'report_configurations' table schema ensured.")
+              CREATE TABLE IF NOT EXISTS report_configurations (
+                  id INTEGER PRIMARY KEY DEFAULT nextval('report_configurations_id_seq'),
+                  label VARCHAR(255) NOT NULL,
+                  query_template TEXT NOT NULL,
+                  column_definitions TEXT,
+                  parameter_definitions TEXT,
+                  crud_config TEXT,
+                  ai_prompt_template TEXT
+              );
+          `)
+      console.log("'report_configurations' table schema ensured.")
+    }
 
 
-    await runStatement( `
+    if (shouldRun('agentic_workflows')) {
+      await runStatement( `
 
-            CREATE TABLE IF NOT EXISTS agentic_workflows (
-                id VARCHAR(255) PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                description TEXT,
-                target_script_path TEXT,
-                handler_function_name VARCHAR(255),
-                parameters_schema JSON,
-                trigger_type VARCHAR(50) CHECK (trigger_type IN ('manual', 'cron')),
-                cron_schedule VARCHAR(255),
-                output_type VARCHAR(50) CHECK (output_type IN ('table', 'text_status', 'json')),
-                created_at TIMESTAMP DEFAULT current_timestamp,
-                updated_at TIMESTAMP DEFAULT current_timestamp
-            );
-        `)
-    console.log("'agentic_workflows' table schema ensured.")
+              CREATE TABLE IF NOT EXISTS agentic_workflows (
+                  id VARCHAR(255) PRIMARY KEY,
+                  name VARCHAR(255) NOT NULL,
+                  description TEXT,
+                  target_script_path TEXT,
+                  handler_function_name VARCHAR(255),
+                  parameters_schema JSON,
+                  trigger_type VARCHAR(50) CHECK (trigger_type IN ('manual', 'cron')),
+                  cron_schedule VARCHAR(255),
+                  output_type VARCHAR(50) CHECK (output_type IN ('table', 'text_status', 'json')),
+                  created_at TIMESTAMP DEFAULT current_timestamp,
+                  updated_at TIMESTAMP DEFAULT current_timestamp
+              );
+          `)
+      console.log("'agentic_workflows' table schema ensured.")
 
-    const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM agentic_workflows')
+      const agenticWorkflowsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM agentic_workflows')
 
-    if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && agenticWorkflowsCountResult[0].cnt === 0) {
+      if (agenticWorkflowsCountResult && agenticWorkflowsCountResult.length > 0 && agenticWorkflowsCountResult[0].cnt === 0) {
       const workflowsToSeed = [
         {
           id: 'wf_anomalies_perf',
@@ -149,138 +172,158 @@ async function main() {
     } else {
       console.log("'agentic_workflows' data already exists or an error occurred during count.")
     }
+    }
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPAIR (
-                ACCT VARCHAR(14) PRIMARY KEY,
-                NAME VARCHAR(50),
-                FYE INTEGER,
-                ICPDATED DATE,
-                ACTIVE VARCHAR(20)
-            );
-        `)
-    console.log("'FRPAIR' table schema ensured.")
+    if (shouldRun('FRPAIR')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPAIR (
+                  ACCT VARCHAR(14) PRIMARY KEY,
+                  NAME VARCHAR(50),
+                  FYE INTEGER,
+                  ICPDATED DATE,
+                  ACTIVE VARCHAR(20)
+              );
+          `)
+      console.log("'FRPAIR' table schema ensured.")
+    }
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPHOLD (
-                AACCT VARCHAR(14),
-                HID VARCHAR(255),
-                ADATE VARCHAR(6),
-                HDIRECT1 VARCHAR(255),
-                HUNITS DOUBLE,
-                HPRINCIPAL DOUBLE,
-                HACCRUAL DOUBLE,
-                PRIMARY KEY (AACCT, HID, ADATE)
-            );
-        `)
-    console.log("'FRPHOLD' table schema ensured.")
+    if (shouldRun('FRPHOLD')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPHOLD (
+                  AACCT VARCHAR(14),
+                  HID VARCHAR(255),
+                  ADATE VARCHAR(6),
+                  HDIRECT1 VARCHAR(255),
+                  HUNITS DOUBLE,
+                  HPRINCIPAL DOUBLE,
+                  HACCRUAL DOUBLE,
+                  PRIMARY KEY (AACCT, HID, ADATE)
+              );
+          `)
+      console.log("'FRPHOLD' table schema ensured.")
+    }
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPTRAN (
-                AACCT VARCHAR(14),
-                HID VARCHAR(255),
-                ADATE VARCHAR(6),
-                TDATE DATE,
-                TCODE VARCHAR(255),
-                TUNITS DOUBLE,
-                TPRINCIPAL DOUBLE,
-                TINCOME DOUBLE,
-                FEE DOUBLE,
-                PRIMARY KEY (AACCT, HID, TDATE, TCODE)
-            );
-        `)
-    console.log("'FRPTRAN' table schema ensured.")
+    if (shouldRun('FRPTRAN')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPTRAN (
+                  AACCT VARCHAR(14),
+                  HID VARCHAR(255),
+                  ADATE VARCHAR(6),
+                  TDATE DATE,
+                  TCODE VARCHAR(255),
+                  TUNITS DOUBLE,
+                  TPRINCIPAL DOUBLE,
+                  TINCOME DOUBLE,
+                  FEE DOUBLE,
+                  PRIMARY KEY (AACCT, HID, TDATE, TCODE)
+              );
+          `)
+      console.log("'FRPTRAN' table schema ensured.")
+    }
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPSECTR (
-                ACCT VARCHAR(14),
-                HID VARCHAR(255),
-                ADATE VARCHAR(6),
-                SECTOR VARCHAR(255),
-                UVR DOUBLE,
-                MKT DOUBLE,
-                PMKT DOUBLE,
-                POS DOUBLE,
-                NEG DOUBLE,
-                PF DOUBLE,
-                NF DOUBLE,
-                INC DOUBLE,
-                PRIMARY KEY (ACCT, HID, ADATE, SECTOR)
-            );
-        `)
-    console.log("'FRPSECTR' table schema ensured.")
-
-
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPCTG (
-                SECTOR VARCHAR(255) PRIMARY KEY,
-                CATEGORY VARCHAR(255)
-            );
-        `)
-    console.log("'FRPCTG' table schema ensured.")
-
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPSI1 (
-                SIFLAG VARCHAR(255),
-                SORI VARCHAR(255),
-                SORINAME VARCHAR(255),
-                PRIMARY KEY (SIFLAG, SORI)
-            );
-        `)
-    console.log("'FRPSI1' table schema ensured.")
+    if (shouldRun('FRPSECTR')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPSECTR (
+                  ACCT VARCHAR(14),
+                  HID VARCHAR(255),
+                  ADATE VARCHAR(6),
+                  SECTOR VARCHAR(255),
+                  UVR DOUBLE,
+                  MKT DOUBLE,
+                  PMKT DOUBLE,
+                  POS DOUBLE,
+                  NEG DOUBLE,
+                  PF DOUBLE,
+                  NF DOUBLE,
+                  INC DOUBLE,
+                  PRIMARY KEY (ACCT, HID, ADATE, SECTOR)
+              );
+          `)
+      console.log("'FRPSECTR' table schema ensured.")
+    }
 
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPSEC (
-                ID VARCHAR(255) PRIMARY KEY,
-                NAMETKR VARCHAR(255),
-                TICKER VARCHAR(50),
-                CUSIP VARCHAR(9)
-            );
-        `)
-    console.log("'FRPSEC' table schema ensured.")
+    if (shouldRun('FRPCTG')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPCTG (
+                  SECTOR VARCHAR(255) PRIMARY KEY,
+                  CATEGORY VARCHAR(255)
+              );
+          `)
+      console.log("'FRPCTG' table schema ensured.")
+    }
+
+    if (shouldRun('FRPSI1')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPSI1 (
+                  SIFLAG VARCHAR(255),
+                  SORI VARCHAR(255),
+                  SORINAME VARCHAR(255),
+                  PRIMARY KEY (SIFLAG, SORI)
+              );
+          `)
+      console.log("'FRPSI1' table schema ensured.")
+    }
 
 
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPPRICE (
-                ID VARCHAR(255),
-                SDATE DATE,
-                SPRICE DOUBLE,
-                PRIMARY KEY (ID, SDATE)
-            );
-        `)
-    console.log("'FRPPRICE' table schema ensured.")
-
-    await runStatement( `
-            CREATE TABLE IF NOT EXISTS FRPAGG (
-                AGG VARCHAR(14),
-                ACCT VARCHAR(14),
-                DTOVER__1 VARCHAR(11),
-                DTOVER__2 VARCHAR(11),
-                DTOVER__3 VARCHAR(11),
-                DTOVER__4 VARCHAR(11),
-                DTOVER__5 VARCHAR(11),
-                DTOVER__6 VARCHAR(11),
-                DTOVER__7 VARCHAR(11),
-                DTOVER__8 VARCHAR(11),
-                DTOVER__9 VARCHAR(11),
-                DTOVER__10 VARCHAR(11),
-                DTOVER__11 VARCHAR(11),
-                DTOVER__12 VARCHAR(11),
-                DTOVER__13 VARCHAR(11),
-                DTOVER__14 VARCHAR(11),
-                DTOVER__15 VARCHAR(11),
-                DTOVER__16 VARCHAR(11),
-                DTOVER__17 VARCHAR(11),
-                DTOVER__18 VARCHAR(11),
-                DTOVER__19 VARCHAR(11),
-                DTOVER__20 VARCHAR(11),
-                PRIMARY KEY (AGG, ACCT)
-            );
-        `)
-    console.log("'FRPAGG' table schema ensured.")
+    if (shouldRun('FRPSEC')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPSEC (
+                  ID VARCHAR(255) PRIMARY KEY,
+                  NAMETKR VARCHAR(255),
+                  TICKER VARCHAR(50),
+                  CUSIP VARCHAR(9)
+              );
+          `)
+      console.log("'FRPSEC' table schema ensured.")
+    }
 
 
+    if (shouldRun('FRPPRICE')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPPRICE (
+                  ID VARCHAR(255),
+                  SDATE DATE,
+                  SPRICE DOUBLE,
+                  PRIMARY KEY (ID, SDATE)
+              );
+          `)
+      console.log("'FRPPRICE' table schema ensured.")
+    }
+
+    if (shouldRun('FRPAGG')) {
+      await runStatement( `
+              CREATE TABLE IF NOT EXISTS FRPAGG (
+                  AGG VARCHAR(14),
+                  ACCT VARCHAR(14),
+                  DTOVER__1 VARCHAR(11),
+                  DTOVER__2 VARCHAR(11),
+                  DTOVER__3 VARCHAR(11),
+                  DTOVER__4 VARCHAR(11),
+                  DTOVER__5 VARCHAR(11),
+                  DTOVER__6 VARCHAR(11),
+                  DTOVER__7 VARCHAR(11),
+                  DTOVER__8 VARCHAR(11),
+                  DTOVER__9 VARCHAR(11),
+                  DTOVER__10 VARCHAR(11),
+                  DTOVER__11 VARCHAR(11),
+                  DTOVER__12 VARCHAR(11),
+                  DTOVER__13 VARCHAR(11),
+                  DTOVER__14 VARCHAR(11),
+                  DTOVER__15 VARCHAR(11),
+                  DTOVER__16 VARCHAR(11),
+                  DTOVER__17 VARCHAR(11),
+                  DTOVER__18 VARCHAR(11),
+                  DTOVER__19 VARCHAR(11),
+                  DTOVER__20 VARCHAR(11),
+                  PRIMARY KEY (AGG, ACCT)
+              );
+          `)
+      console.log("'FRPAGG' table schema ensured.")
+    }
+
+
+    if (shouldRun('report_configurations')) {
     const reportsCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM report_configurations')
     if (reportsCountResult && reportsCountResult.length > 0 && Number(reportsCountResult[0].cnt) > 0) {
       await runStatement( 'DELETE FROM report_configurations')
@@ -419,6 +462,7 @@ async function main() {
     } else {
       console.log('Report configurations already exist or no new reports to seed.')
     }
+    }
 
     function randomDate(start, end) {
       return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
@@ -435,6 +479,7 @@ async function main() {
     }
 
 
+    if (shouldRun('FRPAIR')) {
     const frpairCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAIR')
     if (frpairCountResult && frpairCountResult.length > 0 && Number(frpairCountResult[0].cnt) === 0) {
       const accounts = [
@@ -453,8 +498,10 @@ async function main() {
     } else {
       console.log('FRPAIR data already exists or an error occurred.')
     }
+    }
 
 
+    if (shouldRun('FRPSEC')) {
     const frpsecCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSEC')
     if (frpsecCountResult && frpsecCountResult.length > 0 && Number(frpsecCountResult[0].cnt) === 0) {
       const securities = [
@@ -473,9 +520,11 @@ async function main() {
     } else {
       console.log('FRPSEC data already exists or an error occurred.')
     }
+    }
 
     const basePrices = { 'SEC001': 150, 'SEC002': 250, 'SEC003': 102, 'SEC004': 200, 'SEC005': 1800 }
 
+    if (shouldRun('FRPPRICE')) {
     const frppriceCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPPRICE')
     if (frppriceCountResult && frppriceCountResult.length > 0 && Number(frppriceCountResult[0].cnt) === 0) {
       const prices = []
@@ -498,8 +547,10 @@ async function main() {
     } else {
       console.log('FRPPRICE data already exists or an error occurred.')
     }
+    }
 
 
+    if (shouldRun('FRPHOLD')) {
     const frpholdCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPHOLD')
     if (frpholdCountResult && frpholdCountResult.length > 0 && Number(frpholdCountResult[0].cnt) === 0) {
       const holdings = []
@@ -533,7 +584,9 @@ async function main() {
     } else {
       console.log('FRPHOLD data already exists or an error occurred.')
     }
+    }
 
+    if (shouldRun('FRPTRAN')) {
     const frptranCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPTRAN')
     if (frptranCountResult && frptranCountResult.length > 0 && Number(frptranCountResult[0].cnt) === 0) {
       const transactions = []
@@ -576,7 +629,9 @@ async function main() {
     } else {
       console.log('FRPTRAN data already exists or an error occurred.')
     }
+    }
 
+    if (shouldRun('FRPSECTR')) {
     const frpsectorCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSECTR')
     if (frpsectorCountResult && frpsectorCountResult.length > 0 && Number(frpsectorCountResult[0].cnt) === 0) {
       const performanceData = []
@@ -620,7 +675,9 @@ async function main() {
     } else {
       console.log('FRPSECTR data already exists or an error occurred.')
     }
+    }
 
+    if (shouldRun('FRPCTG')) {
     const frpctgCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPCTG')
     if (frpctgCountResult && frpctgCountResult.length > 0 && Number(frpctgCountResult[0].cnt) === 0) {
       const classifications = [
@@ -646,7 +703,9 @@ async function main() {
     } else {
       console.log('FRPCTG data already exists or an error occurred.')
     }
+    }
 
+    if (shouldRun('FRPSI1')) {
     const frpsi1CountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPSI1')
 
     if (frpsi1CountResult && frpsi1CountResult.length > 0 && Number(frpsi1CountResult[0].cnt) === 0) {
@@ -676,8 +735,10 @@ async function main() {
     } else {
       console.log('FRPSI1 data already exists or an error occurred.')
     }
+    }
 
 
+    if (shouldRun('FRPAGG')) {
     const frpaggCountResult = await runQuery( 'SELECT COUNT(*)::INTEGER AS cnt FROM FRPAGG')
 
     if (frpaggCountResult && frpaggCountResult.length > 0 && Number(frpaggCountResult[0].cnt) === 0) {
@@ -707,16 +768,28 @@ async function main() {
     } else {
       console.log('FRPAGG data already exists or an error occurred.')
     }
+    }
 
     console.log('Database initialization script completed successfully with new data model and seeding.')
 
     console.log('\n--- Verifying Table Counts ---')
 
   
-const tablesToVerify = [
-  'FRPAIR', 'FRPHOLD', 'FRPTRAN', 'FRPSECTR', 'FRPCTG', 'FRPSI1',
-  'FRPSEC', 'FRPPRICE', 'FRPAGG', 'report_configurations', 'agentic_workflows'
-];
+const tablesToVerify = onlyTable
+  ? [process.env.TABLE]
+  : [
+      'FRPAIR',
+      'FRPHOLD',
+      'FRPTRAN',
+      'FRPSECTR',
+      'FRPCTG',
+      'FRPSI1',
+      'FRPSEC',
+      'FRPPRICE',
+      'FRPAGG',
+      'report_configurations',
+      'agentic_workflows',
+    ]
 
 for (const tableName of tablesToVerify) {
   try {

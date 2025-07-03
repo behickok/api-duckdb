@@ -36,10 +36,10 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
   const __dirname = path.dirname(__filename)
   const setupScript = path.resolve(__dirname, '../scripts/db-init/setup-database.js')
 
-  const runInit = (dbPath: string) =>
+  const runInit = (dbPath: string, table: string) =>
     new Promise<void>((resolve, reject) => {
-      const child = spawn('node', [setupScript], {
-        env: { ...process.env, DUCKDB_PATH: dbPath },
+      const child = spawn('bun', [setupScript], {
+        env: { ...process.env, DUCKDB_PATH: dbPath, TABLE: table },
         stdio: 'inherit',
       })
       child.on('error', reject)
@@ -78,11 +78,22 @@ export function setupRoutes(app: Hono, dbMap: Record<string, Database>, defaultD
   })
 
   app.post('/init', async (c) => {
+    let body: { database?: string; table?: string }
     try {
-      for (const dbPath of ['data/key.duckdb', 'data/stis.duckdb']) {
-        await runInit(dbPath)
-      }
-      return c.json({ status: 'initialized' })
+      body = await c.req.json()
+    } catch {
+      return c.json({ error: 'Invalid JSON' }, 400)
+    }
+
+    const dbPath = body.database
+    const table = body.table
+    if (!dbPath || !table) {
+      return c.json({ error: 'database and table are required' }, 400)
+    }
+
+    try {
+      await runInit(dbPath, table)
+      return c.json({ status: 'initialized', database: dbPath, table })
     } catch (err) {
       return c.json({ error: String(err) }, 500)
     }
