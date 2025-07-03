@@ -1,5 +1,10 @@
-# Use the official Bun image
-FROM oven/bun:latest
+# Use Node 18 as the base image for compatibility with DuckDB
+FROM node:18-bullseye-slim
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash \
+    && mv /root/.bun /usr/local/bun \
+    && ln -s /usr/local/bun/bin/bun /usr/local/bin/bun
 
 # Install necessary system libraries
 RUN apt-get update && apt-get install -y \
