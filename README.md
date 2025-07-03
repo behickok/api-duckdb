@@ -4,6 +4,12 @@ This is a sample analytical API built with Hono and DuckDB.
 
 ## Installation
 
+This project expects **Node 18.x**. If you are using `nvm`, run:
+
+```bash
+nvm use
+```
+
 To install dependencies:
 
 ```bash

@@ -19,5 +19,8 @@
   "devDependencies": {
     "@types/bun": "^1.1.8",
     "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
