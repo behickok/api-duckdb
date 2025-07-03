@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "database": "key",
-  "table":"frpair"
+  "table":"frphold"
 }
 ### All sales (default in-memory DB)
 GET http://localhost:3000/sales HTTP/1.1
@@ -25,5 +25,5 @@ x-api-key: secret123-key
 Content-Type: application/json
 
 {
-  "query": "from frpair"
+  "query": "from frphold"
 }
