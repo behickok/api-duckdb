@@ -1,27 +1,31 @@
-ID,NAME,TYPE_FLAG1,TYPE_FLAG2,CATEGORY,GINDEX_FLAG,COLOR,SHORT_NAME,COUNTRY,TAX_FLAG,MWRR_FLAG
-I,ACWI,iShares MSCI ACWI ETF,,,,,79,129,189,"iShares MSCI ACWI ET",US,,
-I,BNDW,Vanguard Total World Bond ETF,,,,,192,80,77,"Vanguard Total World",US,,
-S,01,Total Fund,T,TF,Total Portfolio,101,037,013,145,"Total Fund",US,Y,N
-S,03,Fee Offset,F,TF,,,,,"",,Y,N
-S,04,Uninvested Cash,C,CST,Cash Equivalents,,237,147,018,"Uninvested Cash",,,N
-S,1111,UK Small Cap Equities,,EQ,Equity,,,,,"UK Small Cap Equities",,,,
-S,1121,US Large Cap Equities,,EQ,Equity,,,,,"US Large Cap Equities",,,,
-S,1122,UK Large Cap Equities,,EQ,Equity,,,,,"UK Large Cap Equities",,,,
-S,2111,EM Bonds USD,,FX,Fixed Income,,,,,"EM Bonds USD",,,,
-S,2121,UK Short Dated Bonds,,FX,Fixed Income,,,,,"UK Short Dated Bonds",,,,
-S,2211,Global Investment Grade,,FX,Fixed Income,,,,,"Global Investment Grade",,,,
-S,2221,UK Investment Grade,,FX,Fixed Income,,,,,"UK Investment Grade",,,,
-S,CC,Corporate Credit,,FX,Fixed Income,,,,,"Corporate Credit",,,,
-S,EQ,Equity,,EQ,Equity,,060,211,168,"Equity",,,N
-S,FX,Fixed Income,,FX,Fixed Income,,136,148,205,"Fixed Income",,,N
-S,FIX,Fixed Income,,FX,Fixed Income,,,,,"Fixed Income",,,,
-S,GEQ,Global Equities,,EQ,Equity,,,,,"Global Equities",,,,
-S,IG,Investment Grade,,FX,Fixed Income,,,,,"Investment Grade",,,,
-S,LDB,Long Dated Bonds,,FX,Fixed Income,,,,,"Long Dated Bonds",,,,
-S,LEQ,Large Cap Equities,,EQ,Equity,,,,,"Large Cap Equities",,,,
-S,MB,Mortgage Backed,,FX,Fixed Income,,,,,"Mortgage Backed",,,,
-S,SDB,Short Dated Bonds,,FX,Fixed Income,,,,,"Short Dated Bonds",,,,
-S,SEQ,Small Cap Equities,,EQ,Equity,,,,,"Small Cap Equities",,,,
-S,ST,Cash Equivalents,S,EQ,Cash Equivalents,,224,133,092,"Cash Equivalents",,,N
-S,TF,Total Fund,T,TF,TOTAL FUND,001,,,,,"Total Fund",US,Y,N
-S,TN,Total Net of Fees,T,TF,,,255,255,255,"Total Net of Fees",,,,
+"SIFLAG","SORI","SORINAME","TFSEC","OPT","EXC","CSH","SRT","CATNAME","GINDEX","EXTRA2","SSFCHK","TAXOFFSET","TYP","DAYFACTOR","COLOR","SHORTNAME","BMCOUNTRY","HDX","SI1USER1","SI1USER2","SI1USER3","SI1USER4","SI1USER5","SB_TIER","TOTCTG","XPLUGFACTOR","BRCFREQ","GBR_FLAG","MWRR_FLAG"
+"I","ACWI","iShares MSCI ACWI ETF"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"79,129,189","iShares MSCI ACWI ET","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"I","BNDW","Vanguard Total World Bond ETF"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"192,80,77","Vanguard Total World","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"I","TPO2","TPIO 2"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"155,187,89","TPIO 2","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"I","TPO4","TPIO 4"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"128,100,162","TPIO 4","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"I","TPO5","TPIO 5"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"75,172,198","TPIO 5","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"I","TPO6","TPIO 6"," "," "," "," "," "," "," "," "," "," ","Add new type...",0,"247,150,70","TPIO 6","US"," "," "," "," "," "," ",00," "," ","M"," "," "
+"S","01","Total Fund","T"," "," "," ","TF","Total Portfolio"," ","101"," "," "," ",0,"037,013,145","Total Fund","US","1"," "," "," "," "," ",00,"TF","Y"," "," ","N"
+"S","03","Fee Offset","F"," "," "," ","TF"," "," "," "," "," "," ",0,"014,083,072"," ","","1"," "," "," "," "," ",00,"TF"," "," "," ","N"
+"S","04","Uninvested Cash","C"," "," ","C","ST","Cash Equivalents"," "," "," "," "," ",0,"237,147,018","Uninvested Cash","","1"," "," "," "," "," ",00,"ST"," "," "," ","N"
+"S","1111","UK Small Cap Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","UK Small Cap Equitie","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","1121","US Large Cap Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","US Large Cap Equitie","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","1122","UK Large Cap Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","UK Large Cap Equitie","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","2111","EM Bonds USD"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","EM Bonds USD","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","2121","UK Short Dated Bonds"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","UK Short Dated Bonds","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","2211","Global Investment Grade"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Global Investment Gr","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","2221","UK Investment Grade"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","UK Investment Grade","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","CC","Corporate Credit"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Corporate Credit","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","EQ","Equity"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0,"060,211,168","Equity","","1"," "," "," "," "," ",00,"EQ"," "," "," ","N"
+"S","FX","Fixed Income"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0,"136,148,205","Fixed Income","","1"," "," "," "," "," ",00,"FX"," "," "," ","N"
+"S","FXI","Fixed Income"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Fixed Income","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","GEQ","Global Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","Global Equities","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","IG","Investment Grade"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Investment Grade","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","LDB","Long Dated Bonds"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Long Dated Bonds","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","LEQ","Large Cap Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","Large Cap Equities","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","MB","Mortgage Backed"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Mortgage Backed","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","SDB","Short Dated Bonds"," "," "," "," ","FX","Fixed Income"," "," "," "," "," ",0," ","Short Dated Bonds","","1"," "," "," "," "," ",00,"FX"," "," "," "," "
+"S","SEQ","Small Cap Equities"," "," "," "," ","EQ","Equity"," "," "," "," "," ",0," ","Small Cap Equities","","1"," "," "," "," "," ",00,"EQ"," "," "," "," "
+"S","ST","Cash Equivalents","S"," "," "," ","EQ","Cash Equivalents"," "," "," "," "," ",0,"224,133,092","Cash Equivalents","","1"," "," "," "," "," ",00,"EQ"," "," "," ","N"
+"S","TF","Total Fund","T","","","","TFA01","TOTAL FUND","","001"," "," "," ",0," ","Total Fund","US","1"," "," "," "," "," ",00,"TF"," "," "," ","N"
+"S","TN","Total Net of Fees","T"," "," "," ","TF"," "," "," "," "," "," ",0,"255,255,255","Total Net of Fees","","1"," "," "," "," "," ",00,"TF"," "," "," "," "
