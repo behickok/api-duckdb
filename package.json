@@ -12,9 +12,6 @@
     "start": "bun run src/index.ts",
     "build": "echo 'no build step'"
   },
-  "engines": {
-    "node": "20.x"
-  },
   "dependencies": {
     "duckdb": "^1.0.0",
     "hono": "^4.5.11"
