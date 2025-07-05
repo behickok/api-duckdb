@@ -19,16 +19,16 @@ function loadTable(table, file) {
 
 async function main() {
   const tables = {
-    FRPAIR: 'frpair.csv',
-    FRPHOLD: 'frphold.csv',
-    FRPTRAN: 'frptran.csv',
-    FRPSEC: 'frpsec.csv',
-    FRPTCD:'frptcd.csv',
-    FRPSI1:'frpsi1.csv',
-    FRPINDX:'frpindx.csv',
-    FRPPRICE:'frpprice.csv',
-    FRPCTG:'frpctg.csv',
-    FRPAGG:'frpagg.csv'
+    INT_FRPAIR_RAW: 'frpair.csv',
+    INT_FRPHOLD_RAW: 'frphold.csv',
+    INT_FRPTRAN_RAW: 'frptran.csv',
+    INT_FRPSEC_RAW: 'frpsec.csv',
+    INT_FRPTCD_RAW:'frptcd.csv',
+    INT_FRPSI1_RAW:'frpsi1.csv',
+    INT_FRPINDX_RAW:'frpindx.csv',
+    INT_FRPPRICE_RAW:'frpprice.csv',
+    INT_FRPCTG_RAW:'frpctg.csv',
+    INT_FRPAGG_RAW:'frpagg.csv'
   }
   const only = process.env.TABLE ? process.env.TABLE.toUpperCase() : null
   const statements = Object.entries(tables)
