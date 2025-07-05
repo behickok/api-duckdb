@@ -1,21 +1,13 @@
 import duckdb from 'duckdb'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import fs from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const defaultPath = path.join(__dirname, '../../db/my_app.duckdb')
-const dbPath = path.resolve(process.env.DUCKDB_PATH || defaultPath)
-const dbDir = path.dirname(dbPath)
 const dataDir = path.join(__dirname, '../../data')
 
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true })
-}
-
-const db = new duckdb.Database(dbPath)
+const db = new duckdb.Database(':memory:')
 
 function csv(name) {
   return path.join(dataDir, name).replace(/\\/g, '/')
@@ -45,7 +37,7 @@ async function main() {
     .join('\n')
 
   db.exec(statements)
-  console.log('Database initialized from CSV files.')
+  console.log('In-memory database initialized from CSV files.')
   db.close()
 }
 
