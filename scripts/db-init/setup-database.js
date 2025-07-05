@@ -30,7 +30,13 @@ async function main() {
     FRPAIR: 'frpair.csv',
     FRPHOLD: 'frphold.csv',
     FRPTRAN: 'frptran.csv',
-    FRPSEC: 'frpsec.csv'
+    FRPSEC: 'frpsec.csv',
+    FRPTCD:'frptcd.csv',
+    FRPSI1:'frpsi1.csv',
+    FRPINDX:'frpindx.csv',
+    FRPPRICE:'frpprice.csv',
+    FRPCTG:'frpctg.csv',
+    FRPAGG:'frpagg.csv'
   }
   const only = process.env.TABLE ? process.env.TABLE.toUpperCase() : null
   const statements = Object.entries(tables)

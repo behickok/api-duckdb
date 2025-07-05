@@ -1,0 +1,23 @@
+T_CODE,T_DESC,SF_UNITS,TP_PRIN,TP_INC,TP_NET,TP_CVT,N_PRIN,N_INC,N_NET,N_CVT,SI_PRIN,SI_INC,SI_NET,SI_CV,SP_PRIN,SP_INC,SP_NET,SP_CV,SN_PRIN,SN_INC,SN_NET,SN_CV,CP_PRIN,CP_INC,CP_NET,CP_CV,CN_PRIN,CN_INC,CN_NET,CN_CV,T_IDENT
+BUY,Buy,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,BUY
+BUYR,Buy Reversal,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,BUYR
+CO,Contribution / Cash Receipt,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,CO
+COCOR,Contribution Reversal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,COCOR
+DI,Distribution Cash Withdrawal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,DI
+DIDIR,Distribution Reversal,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,DIDIR
+DIV,Dividends,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,DIV
+DIVR,Dividends Reversal,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,-1,0,0,0,DIVR
+FD,Free Delivery,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,FD
+FDR,Free Delivery Reversal,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,FDR
+FEE,Fee,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,FEE
+FEER,Fee Reversal,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,FEER
+FR,Free Receipt,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,FR
+NULL,Null,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NL
+FRR,Free Receipt Reversal,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,FRR
+INC,Income Received / Purchased,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,INC
+INT,Interest,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,INT
+INTR,Interest Reversal,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,-1,0,0,0,INTR
+SELL,Sale / Maturity,-1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,SELL
+SELLR,Sale / Maturity Reversal,1,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,SELLR
+SPLIT,Stock Split,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,SP
+SPLITR,Stock Split Reversal,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,SP

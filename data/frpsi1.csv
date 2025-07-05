@@ -1,0 +1,27 @@
+ID,NAME,TYPE_FLAG1,TYPE_FLAG2,CATEGORY,GINDEX_FLAG,COLOR,SHORT_NAME,COUNTRY,TAX_FLAG,MWRR_FLAG
+I,ACWI,iShares MSCI ACWI ETF,,,,,79,129,189,"iShares MSCI ACWI ET",US,,
+I,BNDW,Vanguard Total World Bond ETF,,,,,192,80,77,"Vanguard Total World",US,,
+S,01,Total Fund,T,TF,Total Portfolio,101,037,013,145,"Total Fund",US,Y,N
+S,03,Fee Offset,F,TF,,,,,"",,Y,N
+S,04,Uninvested Cash,C,CST,Cash Equivalents,,237,147,018,"Uninvested Cash",,,N
+S,1111,UK Small Cap Equities,,EQ,Equity,,,,,"UK Small Cap Equities",,,,
+S,1121,US Large Cap Equities,,EQ,Equity,,,,,"US Large Cap Equities",,,,
+S,1122,UK Large Cap Equities,,EQ,Equity,,,,,"UK Large Cap Equities",,,,
+S,2111,EM Bonds USD,,FX,Fixed Income,,,,,"EM Bonds USD",,,,
+S,2121,UK Short Dated Bonds,,FX,Fixed Income,,,,,"UK Short Dated Bonds",,,,
+S,2211,Global Investment Grade,,FX,Fixed Income,,,,,"Global Investment Grade",,,,
+S,2221,UK Investment Grade,,FX,Fixed Income,,,,,"UK Investment Grade",,,,
+S,CC,Corporate Credit,,FX,Fixed Income,,,,,"Corporate Credit",,,,
+S,EQ,Equity,,EQ,Equity,,060,211,168,"Equity",,,N
+S,FX,Fixed Income,,FX,Fixed Income,,136,148,205,"Fixed Income",,,N
+S,FIX,Fixed Income,,FX,Fixed Income,,,,,"Fixed Income",,,,
+S,GEQ,Global Equities,,EQ,Equity,,,,,"Global Equities",,,,
+S,IG,Investment Grade,,FX,Fixed Income,,,,,"Investment Grade",,,,
+S,LDB,Long Dated Bonds,,FX,Fixed Income,,,,,"Long Dated Bonds",,,,
+S,LEQ,Large Cap Equities,,EQ,Equity,,,,,"Large Cap Equities",,,,
+S,MB,Mortgage Backed,,FX,Fixed Income,,,,,"Mortgage Backed",,,,
+S,SDB,Short Dated Bonds,,FX,Fixed Income,,,,,"Short Dated Bonds",,,,
+S,SEQ,Small Cap Equities,,EQ,Equity,,,,,"Small Cap Equities",,,,
+S,ST,Cash Equivalents,S,EQ,Cash Equivalents,,224,133,092,"Cash Equivalents",,,N
+S,TF,Total Fund,T,TF,TOTAL FUND,001,,,,,"Total Fund",US,Y,N
+S,TN,Total Net of Fees,T,TF,,,255,255,255,"Total Net of Fees",,,,
