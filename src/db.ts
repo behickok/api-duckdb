@@ -1,4 +1,5 @@
 import { Database } from 'duckdb'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -29,6 +30,21 @@ export function initializeDatabase(db: Database): void {
   `
 
   db.exec(sql)
+}
+
+export function runMigrations(db: Database): void {
+  const migrationsDir = path.resolve(__dirname, '../migrations')
+  if (!fs.existsSync(migrationsDir)) return
+
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => fs.statSync(path.join(migrationsDir, f)).isFile())
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+
+  for (const file of files) {
+    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf-8')
+    db.exec(sql)
+  }
 }
 
 export const QUERIES = {

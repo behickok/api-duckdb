@@ -30,6 +30,11 @@ is seeded by loading CSV files located in the `data/` directory. Tables such as
 `CREATE TABLE AS SELECT` with DuckDB's `read_csv_auto` function. No external
 setup scripts or API keys are required.
 
+Any SQL files placed in the `migrations/` directory are executed after the
+tables are created. Prefix files with a number (e.g. `1 test.txt`) to control
+their order. This makes it easy to add views or other objects that depend on
+the base tables.
+
 ## API Endpoints
 
 - GET /: API info
