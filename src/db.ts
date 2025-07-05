@@ -16,17 +16,35 @@ export function initializeDatabase(db: Database): void {
     CREATE OR REPLACE TABLE sales AS
       SELECT * FROM read_csv_auto('${csv('sales.csv')}');
 
-    CREATE OR REPLACE TABLE FRPAIR AS
+    CREATE OR REPLACE TABLE INT_FRPAIR_RAW AS
       SELECT * FROM read_csv_auto('${csv('frpair.csv')}');
 
-    CREATE OR REPLACE TABLE FRPSEC AS
+    CREATE OR REPLACE TABLE INT_FRPSEC_RAW AS
       SELECT * FROM read_csv_auto('${csv('frpsec.csv')}');
 
-    CREATE OR REPLACE TABLE FRPHOLD AS
+    CREATE OR REPLACE TABLE INT_FRPHOLD_RAW AS
       SELECT * FROM read_csv_auto('${csv('frphold.csv')}');
 
-    CREATE OR REPLACE TABLE FRPTRAN AS
+    CREATE OR REPLACE TABLE INT_FRPTRAN_RAW AS
       SELECT * FROM read_csv_auto('${csv('frptran.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPTCD_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frptcd.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPSI1_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frpsi1.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPINDX_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frpindx.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPPRICE_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frpprice.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPCTG_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frpctg.csv')}');
+
+    CREATE OR REPLACE TABLE INT_FRPAGG_RAW AS
+      SELECT * FROM read_csv_auto('${csv('frpagg.csv')}');
   `
 
   db.exec(sql)
