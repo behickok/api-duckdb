@@ -24,16 +24,15 @@ bun start
 
 ## Database Setup
 
-The application now uses an in-memory DuckDB instance. On startup the database
-is seeded by loading CSV files located in the `data/` directory. Tables such as
-`sales`, `FRPAIR`, `FRPHOLD`, `FRPTRAN` and `FRPSEC` are created using
-`CREATE TABLE AS SELECT` with DuckDB's `read_csv_auto` function. No external
-setup scripts or API keys are required.
+The application uses an in-memory DuckDB instance. On startup a migration
+script located at `migrations/0-create-tables.sql` loads the CSV files from the
+`data/` directory and creates base tables like `sales`, `FRPAIR`, `FRPHOLD`,
+`FRPTRAN` and `FRPSEC`. No external setup scripts or API keys are required.
 
-Any SQL files placed in the `migrations/` directory are executed after the
-tables are created. Prefix files with a number (e.g. `1 test.txt`) to control
-their order. This makes it easy to add views or other objects that depend on
-the base tables.
+Any SQL files placed in the `migrations/` directory are executed in order on
+startup. Prefix files with a number (e.g. `1 test.txt`) to control execution
+order. This makes it easy to add views or other objects that depend on the base
+tables.
 
 ## API Endpoints
 

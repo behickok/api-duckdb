@@ -6,67 +6,12 @@ import { promisify } from 'util';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dataDir = path.resolve(__dirname, '../data');
-
 /**
- * Generates a clean, forward-slash-based path for a given CSV file.
- * @param name The name of the CSV file.
- * @returns The resolved path to the CSV file.
+ * Deprecated initializer kept for backwards compatibility. Table creation
+ * is now handled via SQL files in the `migrations` directory.
  */
-function csv(name: string): string {
-  const filePath = path.join(dataDir, name).replace(/\\/g, '/');
-  console.log(`[INFO] Resolving path for '${name}' to: ${filePath}`);
-  return filePath;
-}
-
-/**
- * Initializes the database by creating tables from CSV files.
- * @param db The DuckDB database instance.
- */
-export function initializeDatabase(db: Database): void {
-  console.log('[INFO] Starting database initialization...');
-  try {
-    const tableCreationSQL = `
-      CREATE OR REPLACE TABLE sales AS
-        SELECT * FROM read_csv_auto('${csv('sales.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPAIR_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpair.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPSEC_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpsec.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPHOLD_RAW AS
-        SELECT * FROM read_csv('${csv('frphold.csv')}', HEADER=TRUE, AUTO_DETECT=TRUE);
-
-      CREATE OR REPLACE TABLE INT_FRPTRAN_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frptran.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPTCD_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frptcd.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPSI1_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpsi1.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPINDX_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpindx.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPPRICE_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpprice.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPCTG_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpctg.csv')}');
-
-      CREATE OR REPLACE TABLE INT_FRPAGG_RAW AS
-        SELECT * FROM read_csv_auto('${csv('frpagg.csv')}');
-    `;
-
-    db.exec(tableCreationSQL);
-    console.log('[SUCCESS] Database initialization completed successfully.');
-  } catch (error) {
-    console.error('[ERROR] An error occurred during database initialization:', error);
-    throw error; // Re-throw the error to allow higher-level handling
-  }
+export function initializeDatabase(_db: Database): void {
+  console.log('[INFO] Database initialization is handled by migrations.');
 }
 
 /**
