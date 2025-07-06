@@ -25,5 +25,5 @@ x-api-key: secret123-key
 Content-Type: application/json
 
 {
-  "query": "from frpair"
+  "query": "from cob where period_start< '2024-12-01'"
 }
