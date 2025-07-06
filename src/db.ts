@@ -6,20 +6,12 @@ import { promisify } from 'util';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-/**
- * Deprecated initializer kept for backwards compatibility. Table creation
- * is now handled via SQL files in the `migrations` directory.
- */
-export function initializeDatabase(_db: Database): void {
-  console.log('[INFO] Database initialization is handled by migrations.');
-}
 
 /**
  * Executes SQL migration files found in the migrations directory.
- * This version is now ASYNCHRONOUS to correctly handle database operations.
  * @param db The DuckDB database instance.
  */
-export async function runMigrations(db: Database): Promise<void> { // 1. Make the function async
+export async function runMigrations(db: Database): Promise<void> {
   console.log('[INFO] Checking for and running migrations...');
   const migrationsDir = path.resolve(__dirname, '../migrations');
 
@@ -28,8 +20,7 @@ export async function runMigrations(db: Database): Promise<void> { // 1. Make th
     return;
   }
 
-  // 2. Promisify db.exec to use it with async/await
-  // This converts the callback-based function into a promise-based one.
+  // Promisify db.exec so it can be awaited
   const exec = promisify(db.exec.bind(db));
 
   try {
@@ -50,8 +41,6 @@ export async function runMigrations(db: Database): Promise<void> { // 1. Make th
       console.log(`[INFO] Running migration: ${file}`);
       const sql = fs.readFileSync(filePath, 'utf-8');
       
-      // 3. Await the execution of the SQL command
-      // The code will now pause here until the database confirms completion.
       await exec(sql);
       
       console.log(`[SUCCESS] Successfully ran migration: ${file}`);
