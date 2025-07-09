@@ -1,0 +1,4 @@
+doc_id,source,content,embedding
+1,manual,"How to open an account","[0.1,0.2,0.3]"
+2,pdf,"Investment strategies","[0.3,0.1,0.7]"
+3,url,"Risk management policies","[0.4,0.4,0.4]"
