@@ -58,6 +58,11 @@ export function setupRoutes(app: Hono, db: Database): void {
     return sendJsonResponse(c, rows)
   })
 
+  app.get('/kb_docs', async (c) => {
+    const rows = await executeQuery(QUERIES.kbDocs)
+    return sendJsonResponse(c, rows)
+  })
+
   app.post('/query', async (c) => {
     let body: { query?: string }
     try {

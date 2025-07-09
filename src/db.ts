@@ -74,6 +74,6 @@ export const QUERIES = {
       SUM(total_price) as daily_revenue
     FROM sales
     GROUP BY date
-    ORDER BY date
-  `
+    ORDER BY date  `,
+  kbDocs: 'SELECT doc_id, source, content FROM kb_docs'
 };

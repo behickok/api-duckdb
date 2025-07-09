@@ -27,7 +27,9 @@ bun start
 The application uses an in-memory DuckDB instance. On startup a migration
 script located at `migrations/0-create-tables.sql` loads the CSV files from the
 `data/` directory and creates base tables like `sales`, `FRPAIR`, `FRPHOLD`,
-`FRPTRAN` and `FRPSEC`. No external setup scripts or API keys are required.
+`FRPTRAN` and `FRPSEC`. Additional migrations can load other CSV files such as
+`kb_docs` for knowledge base content. No external setup scripts or API keys are
+required.
 
 Any SQL files placed in the `migrations/` directory are executed in order on
 startup. Prefix files with a number (e.g. `1 test.txt`) to control execution
@@ -40,8 +42,8 @@ tables.
 - GET /sales: List all sales transactions
 - GET /sales/daily: Get daily sales data
 - GET /sales/summary: Get sales summary by category
+- GET /kb_docs: List knowledge base documents
 - POST /query: Execute a custom SQL query against the in-memory database
 
 ## Deploy
-
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/i3i9G7?referralCode=jan)
