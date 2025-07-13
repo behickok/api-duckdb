@@ -5,8 +5,8 @@ FROM INT_FRPAIR_RAW;
 
 
 CREATE OR REPLACE VIEW FRPHOLD AS
-SELECT 
-    *
+SELECT * 
+    REPLACE (try_cast(hprincipal as FLOAT) as hprincipal) 
 FROM INT_FRPHOLD_RAW;
 
 
